@@ -1,0 +1,1980 @@
+<!doctype html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#071426" />
+  <meta name="color-scheme" content="dark" />
+  <title>Nuanced Performance Tracker</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    :root{
+      --bg:#071426;
+      --card:#0B1F3A;
+      --border:#143457;
+      --muted:#0a2242;
+      --muted2:#0a1b33;
+    }
+    html,body{height:100%; background:var(--bg);}
+    .card{background:var(--card); border:1px solid var(--border);}
+    .chip{border:1px solid var(--border); background:var(--muted2);}
+    .chip-on{background:rgba(2,132,199,0.35); border-color:rgba(125,211,252,0.8);}
+    .pen-on{background:rgba(220,38,38,0.35); border-color:rgba(252,165,165,0.8);}
+    .btn{border:1px solid var(--border); background:var(--muted2);}
+    .btn-primary{background:#0284c7; border-color:#38bdf8;}
+    .btn-danger{background:#dc2626; border-color:#fca5a5;}
+    .tab-on{background:rgba(2,132,199,0.35); border-color:rgba(125,211,252,0.8);}
+    input[type="range"]{ accent-color:#38bdf8; }
+    input[type="date"]{ color-scheme:dark; }
+    .ring{ width:152px; height:152px; }
+    .ring text{ font-feature-settings: "tnum" 1, "lnum" 1; }
+    .mono{ font-feature-settings:"tnum" 1, "lnum" 1; }
+    .disabled{ opacity:0.55; pointer-events:none; filter:saturate(0.9); }
+    .selectable{ cursor:pointer; }
+    .selected-outline{ outline:2px solid rgba(125,211,252,0.95); outline-offset:2px; }
+  </style>
+</head>
+
+<body class="min-h-full text-blue-200/80">
+  <div class="mx-auto max-w-6xl px-3 pb-10">
+    <header class="pt-4 pb-3">
+      <div class="flex items-center justify-between gap-3">
+        <div>
+          <div class="text-sky-200 text-xl font-semibold leading-tight">Nuanced Performance Tracker</div>
+          <div class="text-blue-200/70 text-sm">Mobile-first dashboard with performance and recovery scoring.</div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="btnSave" class="btn btn-primary rounded-lg px-3 py-2 text-sm font-semibold text-white">Save Day</button>
+          <button id="btnClearHistory" class="btn rounded-lg px-3 py-2 text-sm font-semibold">Clear History</button>
+        </div>
+      </div>
+
+      <div class="mt-3 grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div class="card rounded-xl p-3">
+          <div class="flex items-center justify-between gap-3">
+            <div>
+              <div class="text-cyan-200 text-sm font-semibold">Date</div>
+              <div class="text-blue-200/70 text-xs">Select any date. Past 5 years and next 50 years.</div>
+            </div>
+            <input id="datePicker" type="date" class="rounded-lg bg-[#071426] border border-[#143457] px-3 py-2 text-sm" />
+          </div>
+        </div>
+
+        <div class="card rounded-xl p-3">
+          <div class="flex items-center justify-between gap-3">
+            <div>
+              <div class="text-cyan-200 text-sm font-semibold">Day Performance Mode</div>
+              <div class="text-blue-200/70 text-xs">High, Medium, Low. Used for status label only.</div>
+            </div>
+            <div class="flex gap-2">
+              <button data-mode="High" class="modeBtn chip rounded-lg px-3 py-2 text-sm font-semibold text-blue-100">High</button>
+              <button data-mode="Medium" class="modeBtn chip rounded-lg px-3 py-2 text-sm font-semibold text-blue-100">Medium</button>
+              <button data-mode="Low" class="modeBtn chip rounded-lg px-3 py-2 text-sm font-semibold text-blue-100">Low</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card rounded-xl p-3">
+          <div class="flex items-center justify-between gap-3">
+            <div>
+              <div class="text-cyan-200 text-sm font-semibold">Personalization Mode</div>
+              <div class="text-blue-200/70 text-xs">Freeze inputs and scoring. Select indicators to move.</div>
+            </div>
+            <div class="flex items-center gap-2">
+              <button id="btnPersonalize" class="btn rounded-lg px-3 py-2 text-sm font-semibold">Off</button>
+              <div class="flex items-center gap-2">
+                <label class="text-blue-200/80 text-sm">Disable Drift Triggers</label>
+                <button id="btnDisableDrift" class="btn rounded-lg px-3 py-2 text-sm font-semibold">Off</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <nav class="mt-1 flex flex-wrap gap-2">
+      <button class="tabBtn btn rounded-lg px-3 py-2 text-sm font-semibold tab-on" data-tab="dashboard">Dashboard</button>
+      <button class="tabBtn btn rounded-lg px-3 py-2 text-sm font-semibold" data-tab="tutorial">Tutorial</button>
+      <button class="tabBtn btn rounded-lg px-3 py-2 text-sm font-semibold" data-tab="analytics">Analytics</button>
+      <button class="tabBtn btn rounded-lg px-3 py-2 text-sm font-semibold" data-tab="sliderBuilder">Slider Input Builder</button>
+      <button class="tabBtn btn rounded-lg px-3 py-2 text-sm font-semibold" data-tab="performanceBuilder">Performance Builder</button>
+      <button class="tabBtn btn rounded-lg px-3 py-2 text-sm font-semibold" data-tab="penaltiesBuilder">Penalties Builder</button>
+      <button class="tabBtn btn rounded-lg px-3 py-2 text-sm font-semibold" data-tab="coach">Consistency Coach</button>
+    </nav>
+
+    <main class="mt-3">
+      <section id="tab-dashboard" class="tabPanel">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-3">
+          <div class="card rounded-xl p-4 lg:col-span-2">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <div class="text-sky-200 text-lg font-semibold">Dashboard</div>
+                <div class="text-blue-200/70 text-sm">Inputs update scores in real time when Personalization Mode is Off.</div>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="text-blue-200/80 text-sm">Penalty Product:</div>
+                <div id="penaltyProduct" class="mono text-white font-semibold">1.00</div>
+              </div>
+            </div>
+
+            <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div class="card rounded-xl p-3">
+                <div class="flex items-center justify-between gap-2">
+                  <div>
+                    <div class="text-cyan-200 text-sm font-semibold">Slider Inputs</div>
+                    <div class="text-blue-200/70 text-xs">Select indicators in Personalization Mode to move.</div>
+                  </div>
+                  <button id="btnMoveSliders" class="btn rounded-lg px-3 py-2 text-sm font-semibold">Move Selected</button>
+                </div>
+                <div id="sliderInputs" class="mt-3 space-y-3"></div>
+              </div>
+
+              <div class="card rounded-xl p-3">
+                <div class="flex items-center justify-between gap-2">
+                  <div>
+                    <div class="text-cyan-200 text-sm font-semibold">Performance Indicators</div>
+                    <div class="text-blue-200/70 text-xs">Toggle indicators. No on off text displayed.</div>
+                  </div>
+                  <button id="btnMovePerformance" class="btn rounded-lg px-3 py-2 text-sm font-semibold">Move Selected</button>
+                </div>
+                <div id="performanceToggles" class="mt-3 grid grid-cols-2 gap-2"></div>
+              </div>
+            </div>
+
+            <div class="mt-3 card rounded-xl p-3">
+              <div class="flex items-center justify-between gap-2">
+                <div>
+                  <div class="text-cyan-200 text-sm font-semibold">Penalties</div>
+                  <div class="text-blue-200/70 text-xs">Alcohol and Negative Stress Load use segmented controls. Other penalties are toggles.</div>
+                </div>
+                <button id="btnMovePenalties" class="btn rounded-lg px-3 py-2 text-sm font-semibold">Move Selected</button>
+              </div>
+
+              <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div class="card rounded-xl p-3">
+                  <div class="text-sky-200 text-sm font-semibold">Alcohol</div>
+                  <div class="mt-2 flex flex-wrap gap-2">
+                    <button class="segAlcohol chip rounded-lg px-3 py-2 text-sm font-semibold" data-val="None">None</button>
+                    <button class="segAlcohol chip rounded-lg px-3 py-2 text-sm font-semibold" data-val="Low">Low</button>
+                    <button class="segAlcohol chip rounded-lg px-3 py-2 text-sm font-semibold" data-val="Med">Med</button>
+                    <button class="segAlcohol chip rounded-lg px-3 py-2 text-sm font-semibold" data-val="High">High</button>
+                  </div>
+                </div>
+
+                <div class="card rounded-xl p-3">
+                  <div class="text-sky-200 text-sm font-semibold">Negative Stress Load</div>
+                  <div class="mt-2 flex flex-wrap gap-2">
+                    <button class="segStress chip rounded-lg px-3 py-2 text-sm font-semibold" data-val="None">None</button>
+                    <button class="segStress chip rounded-lg px-3 py-2 text-sm font-semibold" data-val="Low">Low</button>
+                    <button class="segStress chip rounded-lg px-3 py-2 text-sm font-semibold" data-val="Med">Med</button>
+                    <button class="segStress chip rounded-lg px-3 py-2 text-sm font-semibold" data-val="High">High</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-3">
+                <div id="penaltyToggles" class="grid grid-cols-2 md:grid-cols-3 gap-2"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card rounded-xl p-4">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <div class="text-sky-200 text-lg font-semibold">Results</div>
+                <div class="text-blue-200/70 text-sm">Performance and Recovery rings update in real time.</div>
+              </div>
+              <div id="statusBadge" class="rounded-lg px-3 py-2 text-sm font-semibold chip text-blue-100">STATUS</div>
+            </div>
+
+            <div class="mt-4 flex flex-col items-center gap-5">
+              <div class="w-full flex items-center justify-around gap-2">
+                <div class="flex flex-col items-center">
+                  <div id="perfRing" class="ring"></div>
+                  <div class="mt-1 text-cyan-200 text-sm font-semibold">Performance</div>
+                </div>
+                <div class="flex flex-col items-center">
+                  <div id="recoveryRing" class="ring"></div>
+                  <div class="mt-1 text-cyan-200 text-sm font-semibold">Recovery</div>
+                </div>
+              </div>
+
+              <div class="w-full grid grid-cols-1 gap-2">
+                <div class="card rounded-xl p-3">
+                  <div class="text-cyan-200 text-sm font-semibold">Score Breakdown</div>
+                  <div class="mt-2 grid grid-cols-2 gap-2 text-sm">
+                    <div class="text-blue-200/70">BaseScore</div>
+                    <div id="baseScore" class="mono text-white font-semibold text-right">0.0</div>
+                    <div class="text-blue-200/70">Final Score</div>
+                    <div id="finalScore" class="mono text-white font-semibold text-right">0.0</div>
+                    <div class="text-blue-200/70">BaseRecovery</div>
+                    <div id="baseRecovery" class="mono text-white font-semibold text-right">0.0</div>
+                    <div class="text-blue-200/70">Final Recovery</div>
+                    <div id="finalRecovery" class="mono text-white font-semibold text-right">0.0</div>
+                  </div>
+                </div>
+
+                <div class="card rounded-xl p-3">
+                  <div class="text-cyan-200 text-sm font-semibold">Last 7 Days</div>
+                  <div class="mt-2 overflow-x-auto">
+                    <table class="w-full text-sm">
+                      <thead>
+                        <tr class="text-blue-200/80">
+                          <th class="text-left py-2 pr-2">Date</th>
+                          <th class="text-right py-2 px-2">Perf</th>
+                          <th class="text-right py-2 px-2">Rec</th>
+                          <th class="text-right py-2 pl-2">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody id="historyTable" class="text-blue-200/80"></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="tab-tutorial" class="tabPanel hidden">
+        <div class="card rounded-xl p-4">
+          <div class="text-sky-200 text-lg font-semibold">Tutorial</div>
+          <p class="mt-3 text-blue-200/80 leading-relaxed">
+            “This app is a structured way to build better habits and stay accountable. It tracks how consistently and effectively you follow through on behaviors that support performance, health, and recovery. The system works best when you customize it. You assign higher rewards to habits you find difficult but important, and stronger penalties to behaviors that easily derail you. This keeps the scoring aligned with your real challenges rather than generic rules. As your priorities, workload, and lifestyle evolve, you adjust the point values, so the system continues to reflect what matters most and helps guide better daily decisions”.
+          </p>
+
+          <div class="mt-4 card rounded-xl p-4">
+            <div class="text-cyan-200 text-sm font-semibold">Quick Start Guide</div>
+            <ol class="mt-2 list-decimal pl-6 space-y-2 text-blue-200/80">
+              <li>Select a date and choose your Day Performance Mode.</li>
+              <li>Adjust sliders and tap indicators to match your day.</li>
+              <li>Review Performance, Recovery, and Status.</li>
+              <li>Tap Save Day to store your entry.</li>
+              <li>Use Analytics to review trends and drift rate.</li>
+              <li>Enable Personalization Mode to move indicators into builders and adjust weights.</li>
+              <li>Use the Consistency Coach to generate recommendations. Apply changes only when Personalization Mode is enabled.</li>
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      <section id="tab-analytics" class="tabPanel hidden">
+        <div class="card rounded-xl p-4">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <div class="text-sky-200 text-lg font-semibold">Analytics</div>
+              <div class="text-blue-200/70 text-sm">Weekly, Quarterly, Six-month, Yearly summaries from saved history.</div>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <button class="periodBtn btn rounded-lg px-3 py-2 text-sm font-semibold tab-on" data-period="7">Weekly</button>
+              <button class="periodBtn btn rounded-lg px-3 py-2 text-sm font-semibold" data-period="90">Quarterly</button>
+              <button class="periodBtn btn rounded-lg px-3 py-2 text-sm font-semibold" data-period="182">Six-month</button>
+              <button class="periodBtn btn rounded-lg px-3 py-2 text-sm font-semibold" data-period="365">Yearly</button>
+            </div>
+          </div>
+
+          <div class="mt-4 grid grid-cols-1 lg:grid-cols-3 gap-3">
+            <div class="card rounded-xl p-3">
+              <div class="text-cyan-200 text-sm font-semibold">Summary</div>
+              <div class="mt-2 space-y-2 text-sm">
+                <div class="flex justify-between gap-2"><span class="text-blue-200/70">Average Performance</span><span id="aPerf" class="mono text-white font-semibold">0.0</span></div>
+                <div class="flex justify-between gap-2"><span class="text-blue-200/70">Average Recovery</span><span id="aRec" class="mono text-white font-semibold">0.0</span></div>
+                <div class="flex justify-between gap-2"><span class="text-blue-200/70">Drift Rate</span><span id="aDrift" class="mono text-white font-semibold">0%</span></div>
+                <div class="flex justify-between gap-2"><span class="text-blue-200/70">Current Streak</span><span id="aStreak" class="mono text-white font-semibold">0</span></div>
+                <div class="flex justify-between gap-2"><span class="text-blue-200/70">Best Streak</span><span id="aBest" class="mono text-white font-semibold">0</span></div>
+              </div>
+            </div>
+
+            <div class="card rounded-xl p-3 lg:col-span-2">
+              <div class="text-cyan-200 text-sm font-semibold">History Chart</div>
+              <div class="mt-2">
+                <canvas id="chart" width="900" height="260" class="w-full rounded-xl border border-[#143457] bg-[#071426]"></canvas>
+              </div>
+              <div class="mt-2 text-blue-200/70 text-xs">
+                Performance and Recovery lines use the same period filter.
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-3 grid grid-cols-1 lg:grid-cols-2 gap-3">
+            <div class="card rounded-xl p-3">
+              <div class="text-cyan-200 text-sm font-semibold">Top Behaviors</div>
+              <div id="topBehaviors" class="mt-2 text-sm text-blue-200/80 space-y-1"></div>
+            </div>
+            <div class="card rounded-xl p-3">
+              <div class="text-cyan-200 text-sm font-semibold">Top Penalties</div>
+              <div id="topPenalties" class="mt-2 text-sm text-blue-200/80 space-y-1"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="tab-sliderBuilder" class="tabPanel hidden">
+        <div class="card rounded-xl p-4">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <div class="text-sky-200 text-lg font-semibold">Slider Input Builder</div>
+              <div class="text-blue-200/70 text-sm">Manage slider inputs and weights. Select rows and add back to dashboard.</div>
+            </div>
+            <div class="flex gap-2">
+              <button id="btnAddSliderItem" class="btn btn-primary rounded-lg px-3 py-2 text-sm font-semibold text-white">Add Item</button>
+              <button id="btnAddSelectedSlidersToDash" class="btn rounded-lg px-3 py-2 text-sm font-semibold">Add Selected to Dashboard</button>
+            </div>
+          </div>
+
+          <div class="mt-3 overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead class="text-blue-200/80">
+                <tr>
+                  <th class="text-left py-2 pr-2">Select</th>
+                  <th class="text-left py-2 px-2">Order</th>
+                  <th class="text-left py-2 px-2">Name</th>
+                  <th class="text-right py-2 px-2">Perf Weight</th>
+                  <th class="text-right py-2 px-2">Recovery Weight</th>
+                  <th class="text-left py-2 px-2">Impact</th>
+                  <th class="text-left py-2 px-2">On Dashboard</th>
+                  <th class="text-right py-2 pl-2">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="sliderBuilderTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="tab-performanceBuilder" class="tabPanel hidden">
+        <div class="card rounded-xl p-4">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <div class="text-sky-200 text-lg font-semibold">Performance Builder</div>
+              <div class="text-blue-200/70 text-sm">Manage performance indicators and weights. Recovery weights auto-normalize to total 100.</div>
+            </div>
+            <div class="flex gap-2">
+              <button id="btnAddPerfItem" class="btn btn-primary rounded-lg px-3 py-2 text-sm font-semibold text-white">Add Item</button>
+              <button id="btnAddSelectedPerfToDash" class="btn rounded-lg px-3 py-2 text-sm font-semibold">Add Selected to Dashboard</button>
+            </div>
+          </div>
+
+          <div class="mt-3 overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead class="text-blue-200/80">
+                <tr>
+                  <th class="text-left py-2 pr-2">Select</th>
+                  <th class="text-left py-2 px-2">Order</th>
+                  <th class="text-left py-2 px-2">Name</th>
+                  <th class="text-right py-2 px-2">Perf Weight</th>
+                  <th class="text-right py-2 px-2">Recovery Weight</th>
+                  <th class="text-left py-2 px-2">Impact</th>
+                  <th class="text-left py-2 px-2">On Dashboard</th>
+                  <th class="text-right py-2 pl-2">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="performanceBuilderTable"></tbody>
+            </table>
+          </div>
+
+          <div class="mt-3 text-blue-200/70 text-xs">
+            Recovery weights across all recovery contributors auto-normalize so total equals 100. BaseRecovery uses Credits minus Load.
+          </div>
+        </div>
+      </section>
+
+      <section id="tab-penaltiesBuilder" class="tabPanel hidden">
+        <div class="card rounded-xl p-4">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <div class="text-sky-200 text-lg font-semibold">Penalties Builder</div>
+              <div class="text-blue-200/70 text-sm">Manage penalty toggles and multipliers. Alcohol and Stress segmented controls stay on dashboard.</div>
+            </div>
+            <div class="flex gap-2">
+              <button id="btnAddPenItem" class="btn btn-primary rounded-lg px-3 py-2 text-sm font-semibold text-white">Add Item</button>
+              <button id="btnAddSelectedPenToDash" class="btn rounded-lg px-3 py-2 text-sm font-semibold">Add Selected to Dashboard</button>
+            </div>
+          </div>
+
+          <div class="mt-3 overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead class="text-blue-200/80">
+                <tr>
+                  <th class="text-left py-2 pr-2">Select</th>
+                  <th class="text-left py-2 px-2">Order</th>
+                  <th class="text-left py-2 px-2">Name</th>
+                  <th class="text-right py-2 px-2">Multiplier</th>
+                  <th class="text-left py-2 px-2">Impact</th>
+                  <th class="text-left py-2 px-2">On Dashboard</th>
+                  <th class="text-right py-2 pl-2">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="penaltiesBuilderTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="tab-coach" class="tabPanel hidden">
+        <div class="card rounded-xl p-4">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <div class="text-sky-200 text-lg font-semibold">Consistency Coach</div>
+              <div class="text-blue-200/70 text-sm">Detects patterns across saved entries and recommends point adjustments to reinforce progress and avoid drift. It does not change weights automatically.</div>
+            </div>
+            <button id="btnApplyCoach" class="btn btn-primary rounded-lg px-3 py-2 text-sm font-semibold text-white">Apply Suggested Changes</button>
+          </div>
+
+          <div class="mt-3 grid grid-cols-1 lg:grid-cols-2 gap-3">
+            <div class="card rounded-xl p-3">
+              <div class="text-cyan-200 text-sm font-semibold">Recommendations</div>
+              <div id="coachText" class="mt-2 text-blue-200/80 text-sm space-y-2"></div>
+            </div>
+            <div class="card rounded-xl p-3">
+              <div class="text-cyan-200 text-sm font-semibold">Notes</div>
+              <ul class="mt-2 list-disc pl-6 text-blue-200/80 text-sm space-y-2">
+                <li>Apply changes only if Personalization Mode is enabled.</li>
+                <li>Suggestions prioritize reduced drift triggers and improved recovery balance.</li>
+                <li>Review Builders after applying changes.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+<script>
+/*
+  FIXED + REWRITTEN
+  Key fixes:
+  1) Builder edits persist across reloads. Catalogs are stored in localStorage (plain objects). Slider completion is reconstructed at runtime.
+  2) Selecting a date with no saved entry resets inputs to defaults instead of leaving stale values.
+*/
+
+(function(){
+  // ---------- Helpers ----------
+  const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
+  const round1 = (n) => Math.round(n * 10) / 10;
+
+  function scoreToColor(score){
+    if (score <= 54) return "#ef4444";
+    if (score <= 64) return "#f97316";
+    if (score <= 74) return "#eab308";
+    return "#22c55e";
+  }
+
+  function isoDate(d){
+    const x = new Date(d);
+    x.setMinutes(x.getMinutes() - x.getTimezoneOffset());
+    return x.toISOString().slice(0,10);
+  }
+
+  function safeParseJSON(s, fallback){
+    try { return JSON.parse(s); } catch { return fallback; }
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, (c)=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+  }
+
+  // ---------- Storage key ----------
+  const LS_KEY = "nuance_tracker_v2";
+
+  // ---------- Base catalogs (defaults) ----------
+  // completionType:
+  // - linear: completion = (v - min)/(max-min) clamped
+  // - sleepCredit: completion = 0 if v < creditMin, else (v-creditMin)/(creditMax-creditMin) clamped
+  function baseSliders(){
+    return [
+      {
+        id:"fastingHours", name:"Fasting (11-24h)",
+        type:"slider", completionType:"linear",
+        min:11, max:24, step:0.5,
+        perfWeight:24, recoveryWeight:8, impact:"both",
+        onDashboard:true, order:1
+      },
+      {
+        id:"resistanceSets", name:"Resistance Training (8-30 sets)",
+        type:"slider", completionType:"linear",
+        min:8, max:30, step:1,
+        perfWeight:30, recoveryWeight:18, impact:"both",
+        onDashboard:true, order:2
+      },
+      {
+        id:"sleepHours", name:"Sleep (0-7h, credit at 5-7h)",
+        type:"slider", completionType:"sleepCredit",
+        min:0, max:7, step:0.25,
+        creditMin:5, creditMax:7,
+        perfWeight:25, recoveryWeight:22, impact:"both",
+        onDashboard:true, order:3
+      },
+      {
+        id:"vestSets", name:"Body or Vest Weighted Exercise (8-30 sets)",
+        type:"slider", completionType:"linear",
+        min:8, max:30, step:1,
+        perfWeight:15, recoveryWeight:6, impact:"both",
+        onDashboard:true, order:4
+      }
+    ];
+  }
+
+  function basePerfToggles(){
+    return [
+      { id:"cardio", name:"Cardio", type:"toggle", perfWeight:30, recoveryWeight:14, impact:"both", onDashboard:true, order:1 },
+      { id:"steps", name:"Steps", type:"toggle", perfWeight:10, recoveryWeight:10, impact:"both", onDashboard:true, order:2 },
+      { id:"protein", name:"Daily Protein REQ", type:"toggle", perfWeight:15, recoveryWeight:10, impact:"both", onDashboard:true, order:3 },
+      { id:"omega3", name:"Omega-3", type:"toggle", perfWeight:15, recoveryWeight:10, impact:"both", onDashboard:true, order:4 },
+      { id:"lowCarb", name:"Low Carb", type:"toggle", perfWeight:20, recoveryWeight:10, impact:"both", onDashboard:true, order:5 },
+      { id:"suppStack", name:"Supplement Stack", type:"toggle", perfWeight:10, recoveryWeight:10, impact:"both", onDashboard:true, order:6 },
+      { id:"deepWork", name:"Deep Work", type:"toggle", perfWeight:15, recoveryWeight:0, impact:"performance", onDashboard:true, order:7 },
+      { id:"fiber", name:"Fiber", type:"toggle", perfWeight:10, recoveryWeight:0, impact:"performance", onDashboard:true, order:8 },
+      { id:"sunlight", name:"Sunlight", type:"toggle", perfWeight:10, recoveryWeight:10, impact:"both", onDashboard:true, order:9 },
+      { id:"stretching", name:"Stretching", type:"toggle", perfWeight:10, recoveryWeight:10, impact:"both", onDashboard:true, order:10 }
+    ];
+  }
+
+  function basePenalties(){
+    return [
+      { id:"binge", name:"Binge Eating", type:"penaltyToggle", multiplier:0.80, impact:"both", onDashboard:true, order:1 },
+      { id:"ultra", name:"Ultra Processed", type:"penaltyToggle", multiplier:0.80, impact:"both", onDashboard:true, order:2 },
+      { id:"grazing", name:"Grazing", type:"penaltyToggle", multiplier:0.85, impact:"both", onDashboard:true, order:3 },
+      { id:"late", name:"Late Eating", type:"penaltyToggle", multiplier:0.80, impact:"both", onDashboard:true, order:4 }
+    ];
+  }
+
+  function makePlaceholders(prefix, count, kind, startOrder){
+    const arr = [];
+    for (let i=1;i<=count;i++){
+      if (kind === "slider"){
+        arr.push({
+          id:`${prefix}_ph_${i}`, name:`Placeholder Slider ${i}`,
+          type:"slider", completionType:"linear",
+          min:0, max:10, step:1,
+          perfWeight:10, recoveryWeight:5, impact:"both",
+          onDashboard:false, order:startOrder+i
+        });
+      } else if (kind === "perf"){
+        arr.push({
+          id:`${prefix}_ph_${i}`, name:`Placeholder Performance ${i}`,
+          type:"toggle",
+          perfWeight:10, recoveryWeight:5, impact:"both",
+          onDashboard:false, order:startOrder+i
+        });
+      } else if (kind === "pen"){
+        arr.push({
+          id:`${prefix}_ph_${i}`, name:`Placeholder Penalty ${i}`,
+          type:"penaltyToggle",
+          multiplier:0.90, impact:"both",
+          onDashboard:false, order:startOrder+i
+        });
+      }
+    }
+    return arr;
+  }
+
+  // ---------- State defaults ----------
+  const defaultState = {
+    tab:"dashboard",
+    date: isoDate(new Date()),
+    mode:"High",
+    personalizationMode:false,
+    disableDriftTriggers:false,
+
+    alcohol:"None",
+    stress:"None",
+
+    // Stored catalogs (plain objects). Persisted.
+    catalogs: {
+      sliders: [...baseSliders(), ...makePlaceholders("sl", 15, "slider", 100)],
+      perf:    [...basePerfToggles(), ...makePlaceholders("pf", 15, "perf", 100)],
+      pen:     [...basePenalties(), ...makePlaceholders("pn", 15, "pen", 100)]
+    },
+
+    // Daily inputs
+    sliderValues: {},
+    toggles: {},
+    penalties: {},
+
+    // Saved history keyed by date
+    history: {},
+
+    // Selection sets (not serializable, revived)
+    selected: { sliders:[], perf:[], pen:[] },
+    builderSelected: { sliders:[], perf:[], pen:[] }
+  };
+
+  const alcoholMap = { None:1.00, Low:0.95, Med:0.85, High:0.60 };
+  const stressMap  = { None:1.00, Low:0.95, Med:0.85, High:0.60 };
+
+  function reviveSets(state){
+    state.selected = {
+      sliders: new Set(state.selected?.sliders || []),
+      perf: new Set(state.selected?.perf || []),
+      pen: new Set(state.selected?.pen || [])
+    };
+    state.builderSelected = {
+      sliders: new Set(state.builderSelected?.sliders || []),
+      perf: new Set(state.builderSelected?.perf || []),
+      pen: new Set(state.builderSelected?.pen || [])
+    };
+    return state;
+  }
+
+  function stripSetsForSave(state){
+    return {
+      ...state,
+      selected: {
+        sliders:[...state.selected.sliders],
+        perf:[...state.selected.perf],
+        pen:[...state.selected.pen]
+      },
+      builderSelected: {
+        sliders:[...state.builderSelected.sliders],
+        perf:[...state.builderSelected.perf],
+        pen:[...state.builderSelected.pen]
+      }
+    };
+  }
+
+  function loadState(){
+    const raw = localStorage.getItem(LS_KEY);
+    const saved = raw ? safeParseJSON(raw, null) : null;
+    if (!saved) return hydrate(reviveSets(structuredClone(defaultState)));
+    const merged = { ...structuredClone(defaultState), ...saved };
+    merged.catalogs = merged.catalogs || structuredClone(defaultState.catalogs);
+    merged.sliderValues = merged.sliderValues || {};
+    merged.toggles = merged.toggles || {};
+    merged.penalties = merged.penalties || {};
+    merged.history = merged.history || {};
+    return hydrate(reviveSets(merged));
+  }
+
+  function saveState(){
+    localStorage.setItem(LS_KEY, JSON.stringify(stripSetsForSave(state)));
+  }
+
+  function hydrate(s){
+    // Ensure input maps have all keys needed
+    s.catalogs.sliders.forEach(item=>{
+      if (s.sliderValues[item.id] === undefined){
+        s.sliderValues[item.id] = (item.id === "sleepHours") ? 7 : item.min;
+      }
+    });
+    s.catalogs.perf.forEach(item=>{
+      if (s.toggles[item.id] === undefined) s.toggles[item.id] = 0;
+    });
+    s.catalogs.pen.forEach(item=>{
+      if (s.penalties[item.id] === undefined) s.penalties[item.id] = 0;
+    });
+    return s;
+  }
+
+  function getCompletion(item, v){
+    if (item.completionType === "sleepCredit"){
+      const creditMin = Number(item.creditMin ?? 5);
+      const creditMax = Number(item.creditMax ?? 7);
+      if (v < creditMin) return 0;
+      return clamp((v - creditMin) / (creditMax - creditMin), 0, 1);
+    }
+    // linear default
+    const min = Number(item.min);
+    const max = Number(item.max);
+    if (!(max > min)) return 0;
+    return clamp((v - min) / (max - min), 0, 1);
+  }
+
+  // Recovery categories
+  function isRecoveryCredit(id){
+    return ["sleepHours","steps","stretching","omega3","protein","lowCarb","suppStack","sunlight"].includes(id);
+  }
+  function isRecoveryLoad(id){
+    return ["resistanceSets","cardio"].includes(id);
+  }
+
+  // ---------- DOM helpers ----------
+  const $ = (id) => document.getElementById(id);
+
+  // ---------- Init ----------
+  let state = loadState();
+
+  // Date picker range
+  const datePicker = $("datePicker");
+  const today = new Date();
+  const minDate = new Date(today); minDate.setFullYear(minDate.getFullYear() - 5);
+  const maxDate = new Date(today); maxDate.setFullYear(maxDate.getFullYear() + 50);
+  datePicker.min = isoDate(minDate);
+  datePicker.max = isoDate(maxDate);
+  datePicker.value = state.date;
+
+  // Tabs
+  document.querySelectorAll(".tabBtn").forEach(btn=>{
+    btn.addEventListener("click", ()=> setTab(btn.dataset.tab));
+  });
+
+  function setTab(tab){
+    state.tab = tab;
+    document.querySelectorAll(".tabBtn").forEach(b=>{
+      b.classList.toggle("tab-on", b.dataset.tab === tab);
+    });
+    document.querySelectorAll(".tabPanel").forEach(p=>{
+      p.classList.toggle("hidden", p.id !== `tab-${tab}`);
+    });
+    saveState();
+    if (tab === "analytics") updateAnalytics(currentPeriodDays);
+    if (tab === "coach") updateCoach();
+    if (tab === "sliderBuilder" || tab === "performanceBuilder" || tab === "penaltiesBuilder") renderBuilders();
+  }
+
+  // Mode buttons
+  document.querySelectorAll(".modeBtn").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      state.mode = btn.dataset.mode;
+      syncModeUI();
+      saveState();
+      recalcIfAllowed();
+    });
+  });
+
+  function syncModeUI(){
+    document.querySelectorAll(".modeBtn").forEach(b=>{
+      b.classList.toggle("chip-on", b.dataset.mode === state.mode);
+    });
+  }
+
+  // Personalization Mode
+  $("btnPersonalize").addEventListener("click", ()=>{
+    state.personalizationMode = !state.personalizationMode;
+    $("btnPersonalize").textContent = state.personalizationMode ? "On" : "Off";
+    $("btnPersonalize").classList.toggle("btn-primary", state.personalizationMode);
+    state.selected.sliders.clear();
+    state.selected.perf.clear();
+    state.selected.pen.clear();
+    saveState();
+    renderDashboard();
+  });
+
+  // Disable drift triggers
+  $("btnDisableDrift").addEventListener("click", ()=>{
+    state.disableDriftTriggers = !state.disableDriftTriggers;
+    $("btnDisableDrift").textContent = state.disableDriftTriggers ? "On" : "Off";
+    $("btnDisableDrift").classList.toggle("btn-primary", state.disableDriftTriggers);
+    saveState();
+    recalcIfAllowed();
+  });
+
+  // Segments
+  document.querySelectorAll(".segAlcohol").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      state.alcohol = btn.dataset.val;
+      syncSegments();
+      saveState();
+      recalcIfAllowed();
+    });
+  });
+  document.querySelectorAll(".segStress").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      state.stress = btn.dataset.val;
+      syncSegments();
+      saveState();
+      recalcIfAllowed();
+    });
+  });
+
+  function syncSegments(){
+    document.querySelectorAll(".segAlcohol").forEach(b=>{
+      b.classList.toggle("chip-on", b.dataset.val === state.alcohol);
+    });
+    document.querySelectorAll(".segStress").forEach(b=>{
+      b.classList.toggle("chip-on", b.dataset.val === state.stress);
+    });
+  }
+
+  // Date change: load entry or reset if unsaved
+  datePicker.addEventListener("change", ()=>{
+    state.date = datePicker.value;
+    loadDayIntoInputs(state.date);
+    saveState();
+  });
+
+  function resetInputsForNewDate(){
+    state.alcohol = "None";
+    state.stress = "None";
+
+    state.catalogs.sliders.forEach(s=>{
+      state.sliderValues[s.id] = (s.id === "sleepHours") ? 7 : s.min;
+    });
+    state.catalogs.perf.forEach(p=> state.toggles[p.id] = 0);
+    state.catalogs.pen.forEach(p=> state.penalties[p.id] = 0);
+
+    // clear any selections
+    state.selected.sliders.clear();
+    state.selected.perf.clear();
+    state.selected.pen.clear();
+    state.builderSelected.sliders.clear();
+    state.builderSelected.perf.clear();
+    state.builderSelected.pen.clear();
+  }
+
+  function loadDayIntoInputs(dateISO){
+    const entry = state.history?.[dateISO];
+    if (!entry){
+      resetInputsForNewDate();
+      renderDashboard();
+      return;
+    }
+
+    state.mode = entry.mode || state.mode;
+    state.alcohol = entry.alcohol || state.alcohol;
+    state.stress = entry.stress || state.stress;
+
+    state.sliderValues = { ...state.sliderValues, ...(entry.sliderValues || {}) };
+    state.toggles = { ...state.toggles, ...(entry.toggles || {}) };
+    state.penalties = { ...state.penalties, ...(entry.penalties || {}) };
+
+    hydrate(state);
+    renderDashboard();
+  }
+
+  // Save / Clear history
+  $("btnSave").addEventListener("click", ()=>{
+    const snap = computeScores();
+    state.history[state.date] = {
+      date: state.date,
+      mode: state.mode,
+      alcohol: state.alcohol,
+      stress: state.stress,
+      sliderValues: { ...state.sliderValues },
+      toggles: { ...state.toggles },
+      penalties: { ...state.penalties },
+      baseScore: snap.baseScore,
+      score: snap.score,
+      baseRecovery: snap.baseRecovery,
+      recovery: snap.recovery,
+      status: snap.status
+    };
+    saveState();
+    renderHistoryTable();
+    if (state.tab === "analytics") updateAnalytics(currentPeriodDays);
+    if (state.tab === "coach") updateCoach();
+  });
+
+  $("btnClearHistory").addEventListener("click", ()=>{
+    state.history = {};
+    saveState();
+    renderHistoryTable();
+    if (state.tab === "analytics") updateAnalytics(currentPeriodDays);
+    if (state.tab === "coach") updateCoach();
+  });
+
+  // Move selected off dashboard (to builder)
+  $("btnMoveSliders").addEventListener("click", ()=>{
+    if (!state.personalizationMode) return;
+    state.selected.sliders.forEach(id=>{
+      const item = state.catalogs.sliders.find(x=>x.id===id);
+      if (item) item.onDashboard = false;
+    });
+    state.selected.sliders.clear();
+    saveState();
+    renderDashboard();
+    renderBuilders();
+  });
+
+  $("btnMovePerformance").addEventListener("click", ()=>{
+    if (!state.personalizationMode) return;
+    state.selected.perf.forEach(id=>{
+      const item = state.catalogs.perf.find(x=>x.id===id);
+      if (item) item.onDashboard = false;
+    });
+    state.selected.perf.clear();
+    saveState();
+    renderDashboard();
+    renderBuilders();
+  });
+
+  $("btnMovePenalties").addEventListener("click", ()=>{
+    if (!state.personalizationMode) return;
+    state.selected.pen.forEach(id=>{
+      const item = state.catalogs.pen.find(x=>x.id===id);
+      if (item) item.onDashboard = false;
+    });
+    state.selected.pen.clear();
+    saveState();
+    renderDashboard();
+    renderBuilders();
+  });
+
+  // Add selected back to dashboard
+  $("btnAddSelectedSlidersToDash").addEventListener("click", ()=>{
+    state.builderSelected.sliders.forEach(id=>{
+      const item = state.catalogs.sliders.find(x=>x.id===id);
+      if (item) item.onDashboard = true;
+    });
+    state.builderSelected.sliders.clear();
+    saveState();
+    renderDashboard();
+    renderBuilders();
+  });
+
+  $("btnAddSelectedPerfToDash").addEventListener("click", ()=>{
+    state.builderSelected.perf.forEach(id=>{
+      const item = state.catalogs.perf.find(x=>x.id===id);
+      if (item) item.onDashboard = true;
+    });
+    state.builderSelected.perf.clear();
+    saveState();
+    renderDashboard();
+    renderBuilders();
+  });
+
+  $("btnAddSelectedPenToDash").addEventListener("click", ()=>{
+    state.builderSelected.pen.forEach(id=>{
+      const item = state.catalogs.pen.find(x=>x.id===id);
+      if (item) item.onDashboard = true;
+    });
+    state.builderSelected.pen.clear();
+    saveState();
+    renderDashboard();
+    renderBuilders();
+  });
+
+  // Add items
+  $("btnAddSliderItem").addEventListener("click", ()=>{
+    const name = prompt("Slider name?");
+    if (!name) return;
+    const id = "sl_custom_" + Math.random().toString(16).slice(2);
+    const nextOrder = Math.max(...state.catalogs.sliders.map(x=>Number(x.order||0)), 0) + 1;
+    state.catalogs.sliders.push({
+      id, name,
+      type:"slider", completionType:"linear",
+      min:0, max:10, step:1,
+      perfWeight:10, recoveryWeight:5, impact:"both",
+      onDashboard:false, order: nextOrder
+    });
+    state.sliderValues[id] = 0;
+    saveState();
+    renderBuilders();
+  });
+
+  $("btnAddPerfItem").addEventListener("click", ()=>{
+    const name = prompt("Performance indicator name?");
+    if (!name) return;
+    const id = "pf_custom_" + Math.random().toString(16).slice(2);
+    const nextOrder = Math.max(...state.catalogs.perf.map(x=>Number(x.order||0)), 0) + 1;
+    state.catalogs.perf.push({
+      id, name, type:"toggle",
+      perfWeight:10, recoveryWeight:5, impact:"both",
+      onDashboard:false, order: nextOrder
+    });
+    state.toggles[id] = 0;
+    saveState();
+    renderBuilders();
+  });
+
+  $("btnAddPenItem").addEventListener("click", ()=>{
+    const name = prompt("Penalty name?");
+    if (!name) return;
+    const id = "pn_custom_" + Math.random().toString(16).slice(2);
+    const nextOrder = Math.max(...state.catalogs.pen.map(x=>Number(x.order||0)), 0) + 1;
+    state.catalogs.pen.push({
+      id, name, type:"penaltyToggle",
+      multiplier:0.90, impact:"both",
+      onDashboard:false, order: nextOrder
+    });
+    state.penalties[id] = 0;
+    saveState();
+    renderBuilders();
+  });
+
+  // Analytics period
+  let currentPeriodDays = 7;
+  document.querySelectorAll(".periodBtn").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      document.querySelectorAll(".periodBtn").forEach(b=>b.classList.toggle("tab-on", b===btn));
+      currentPeriodDays = parseInt(btn.dataset.period,10);
+      updateAnalytics(currentPeriodDays);
+    });
+  });
+
+  // Coach apply
+  $("btnApplyCoach").addEventListener("click", ()=>{
+    if (!state.personalizationMode){
+      alert("Enable Personalization Mode before applying suggested changes.");
+      return;
+    }
+    applyCoachSuggestions();
+    saveState();
+    renderBuilders();
+    renderDashboard();
+    updateCoach();
+  });
+
+  // ---------- Dashboard rendering ----------
+  function setInputsEnabled(enabled){
+    const dash = $("tab-dashboard");
+    const controls = dash.querySelectorAll("input,button.segAlcohol,button.segStress,.toggleBtn,.sliderEl");
+
+    controls.forEach(el=>{
+      const isPersonalizeButton = el.id === "btnPersonalize" || el.id === "btnDisableDrift" || el.id === "btnSave" || el.id === "btnClearHistory";
+      const isMoveButton = el.id === "btnMoveSliders" || el.id === "btnMovePerformance" || el.id === "btnMovePenalties";
+      const isDate = el.id === "datePicker";
+
+      if (!enabled){
+        if (isPersonalizeButton || isMoveButton || isDate) return;
+        el.setAttribute("disabled","disabled");
+        el.classList.add("disabled");
+      } else {
+        el.removeAttribute("disabled");
+        el.classList.remove("disabled");
+      }
+    });
+
+    $("btnMoveSliders").classList.toggle("btn-primary", state.personalizationMode);
+    $("btnMovePerformance").classList.toggle("btn-primary", state.personalizationMode);
+    $("btnMovePenalties").classList.toggle("btn-primary", state.personalizationMode);
+  }
+
+  function renderDashboard(){
+    // ensure state maps are complete
+    hydrate(state);
+
+    renderSliders();
+    renderPerformanceToggles();
+    renderPenaltyToggles();
+    syncModeUI();
+    syncSegments();
+
+    $("btnPersonalize").textContent = state.personalizationMode ? "On" : "Off";
+    $("btnPersonalize").classList.toggle("btn-primary", state.personalizationMode);
+
+    $("btnDisableDrift").textContent = state.disableDriftTriggers ? "On" : "Off";
+    $("btnDisableDrift").classList.toggle("btn-primary", state.disableDriftTriggers);
+
+    setInputsEnabled(!state.personalizationMode);
+    renderHistoryTable();
+    recalcIfAllowed();
+  }
+
+  function byOrder(a,b){
+    return (Number(a.order||0) - Number(b.order||0)) || String(a.id).localeCompare(String(b.id));
+  }
+
+  function renderSliders(){
+    const wrap = $("sliderInputs");
+    wrap.innerHTML = "";
+
+    const items = state.catalogs.sliders
+      .filter(x=>x.onDashboard && x.type==="slider")
+      .slice()
+      .sort(byOrder);
+
+    items.forEach(item=>{
+      const selected = state.selected.sliders.has(item.id);
+
+      const row = document.createElement("div");
+      row.className = "card rounded-xl p-3 " + (state.personalizationMode ? "selectable " : "");
+      if (state.personalizationMode && selected) row.classList.add("selected-outline");
+
+      row.addEventListener("click", (e)=>{
+        if (!state.personalizationMode) return;
+        if (e.target && e.target.type === "range") return;
+        if (state.selected.sliders.has(item.id)) state.selected.sliders.delete(item.id);
+        else state.selected.sliders.add(item.id);
+        saveState();
+        renderSliders();
+      });
+
+      const v = Number(state.sliderValues[item.id] ?? item.min);
+
+      const top = document.createElement("div");
+      top.className = "flex items-center justify-between gap-2";
+      top.innerHTML = `
+        <div>
+          <div class="text-sky-200 text-sm font-semibold">${escapeHtml(item.name)}</div>
+          <div class="text-blue-200/70 text-xs">Perf weight: <span class="mono">${item.perfWeight}</span> | Recovery weight: <span class="mono">${item.recoveryWeight}</span></div>
+        </div>
+        <div class="mono text-white font-semibold">${formatSliderValue(item, v)}</div>
+      `;
+
+      const slider = document.createElement("input");
+      slider.className = "sliderEl mt-3 w-full";
+      slider.type = "range";
+      slider.min = item.min;
+      slider.max = item.max;
+      slider.step = item.step;
+      slider.value = v;
+
+      slider.addEventListener("input", ()=>{
+        state.sliderValues[item.id] = parseFloat(slider.value);
+        saveState();
+        if (!state.personalizationMode){
+          renderSliders();
+          recalcIfAllowed();
+        } else {
+          top.querySelector(".mono.text-white").textContent = formatSliderValue(item, state.sliderValues[item.id]);
+        }
+      });
+
+      row.appendChild(top);
+      row.appendChild(slider);
+      wrap.appendChild(row);
+    });
+  }
+
+  function formatSliderValue(item, v){
+    const isHours = item.id.includes("Hours") || item.name.includes("Sleep") || item.name.includes("Fasting");
+    if (isHours) return `${round1(v)}h`;
+    return `${Math.round(v)} sets`;
+  }
+
+  function renderPerformanceToggles(){
+    const wrap = $("performanceToggles");
+    wrap.innerHTML = "";
+
+    const items = state.catalogs.perf
+      .filter(x=>x.onDashboard && x.type==="toggle")
+      .slice()
+      .sort(byOrder);
+
+    items.forEach(item=>{
+      const on = !!state.toggles[item.id];
+      const selected = state.selected.perf.has(item.id);
+
+      const btn = document.createElement("button");
+      btn.className = "toggleBtn rounded-xl px-3 py-3 text-left text-sm font-semibold chip " + (on ? "chip-on" : "");
+      if (state.personalizationMode) btn.classList.add("selectable");
+      if (state.personalizationMode && selected) btn.classList.add("selected-outline");
+
+      btn.innerHTML = `
+        <div class="text-sky-200">${escapeHtml(item.name)}</div>
+        <div class="text-blue-200/70 text-xs">Perf <span class="mono">${item.perfWeight}</span> | Rec <span class="mono">${item.recoveryWeight}</span></div>
+      `;
+
+      btn.addEventListener("click", ()=>{
+        if (state.personalizationMode){
+          if (state.selected.perf.has(item.id)) state.selected.perf.delete(item.id);
+          else state.selected.perf.add(item.id);
+          saveState();
+          renderPerformanceToggles();
+          return;
+        }
+        state.toggles[item.id] = on ? 0 : 1;
+        saveState();
+        renderPerformanceToggles();
+        recalcIfAllowed();
+      });
+
+      wrap.appendChild(btn);
+    });
+  }
+
+  function renderPenaltyToggles(){
+    const wrap = $("penaltyToggles");
+    wrap.innerHTML = "";
+
+    const items = state.catalogs.pen
+      .filter(x=>x.onDashboard && x.type==="penaltyToggle")
+      .slice()
+      .sort(byOrder);
+
+    items.forEach(item=>{
+      const on = !!state.penalties[item.id];
+      const selected = state.selected.pen.has(item.id);
+
+      const btn = document.createElement("button");
+      btn.className = "toggleBtn rounded-xl px-3 py-3 text-left text-sm font-semibold chip " + (on ? "pen-on" : "");
+      if (state.personalizationMode) btn.classList.add("selectable");
+      if (state.personalizationMode && selected) btn.classList.add("selected-outline");
+
+      btn.innerHTML = `
+        <div class="text-sky-200">${escapeHtml(item.name)}</div>
+        <div class="text-blue-200/70 text-xs">Multiplier <span class="mono">${Number(item.multiplier).toFixed(2)}</span></div>
+      `;
+
+      btn.addEventListener("click", ()=>{
+        if (state.personalizationMode){
+          if (state.selected.pen.has(item.id)) state.selected.pen.delete(item.id);
+          else state.selected.pen.add(item.id);
+          saveState();
+          renderPenaltyToggles();
+          return;
+        }
+        state.penalties[item.id] = on ? 0 : 1;
+        saveState();
+        renderPenaltyToggles();
+        recalcIfAllowed();
+      });
+
+      wrap.appendChild(btn);
+    });
+  }
+
+  // ---------- Scoring ----------
+  function computeBaseScore(){
+    const perfItems = [];
+
+    // Sliders on dashboard
+    state.catalogs.sliders.filter(x=>x.onDashboard && x.type==="slider").forEach(item=>{
+      const v = Number(state.sliderValues[item.id] ?? item.min);
+      perfItems.push({ w:Number(item.perfWeight)||0, c:getCompletion(item, v), id:item.id });
+    });
+
+    // Toggles on dashboard
+    state.catalogs.perf.filter(x=>x.onDashboard && x.type==="toggle").forEach(item=>{
+      perfItems.push({ w:Number(item.perfWeight)||0, c:(state.toggles[item.id] ? 1 : 0), id:item.id });
+    });
+
+    const wSum = perfItems.reduce((a,x)=>a + x.w, 0);
+    const contrib = perfItems.reduce((a,x)=>a + x.w * clamp(x.c,0,1), 0);
+    const base = wSum > 0 ? (contrib / wSum) * 100 : 0;
+    return clamp(base, 0, 100);
+  }
+
+  function computePenaltyProduct(){
+    let prod = 1.0;
+    prod *= alcoholMap[state.alcohol] ?? 1.0;
+    prod *= stressMap[state.stress] ?? 1.0;
+
+    state.catalogs.pen.forEach(item=>{
+      if (item.type !== "penaltyToggle") return;
+      if (state.penalties[item.id]) prod *= Number(item.multiplier) || 1.0;
+    });
+
+    // Auto sleep < 4h
+    const sh = Number(state.sliderValues.sleepHours ?? 0);
+    if (sh < 4) prod *= 0.80;
+
+    return prod;
+  }
+
+  function computeRecoveryWeightsNormalized(){
+    const contributors = [];
+
+    state.catalogs.sliders.forEach(item=>{
+      if ((item.impact === "recovery" || item.impact === "both") && Number(item.recoveryWeight) > 0) contributors.push(item);
+    });
+    state.catalogs.perf.forEach(item=>{
+      if ((item.impact === "recovery" || item.impact === "both") && Number(item.recoveryWeight) > 0) contributors.push(item);
+    });
+
+    const sum = contributors.reduce((a,x)=>a + (Number(x.recoveryWeight)||0), 0);
+    if (sum <= 0) return { contributors, norm: ()=>0 };
+    return { contributors, norm: (item)=> (Number(item.recoveryWeight)||0) * (100 / sum) };
+  }
+
+  function computeRecovery(){
+    const { contributors, norm } = computeRecoveryWeightsNormalized();
+    let credits = 0;
+    let load = 0;
+
+    contributors.forEach(item=>{
+      const w = norm(item);
+      let c = 0;
+
+      if (item.type === "slider"){
+        const v = Number(state.sliderValues[item.id] ?? item.min);
+        c = getCompletion(item, v);
+      } else if (item.type === "toggle"){
+        c = state.toggles[item.id] ? 1 : 0;
+      }
+
+      if (isRecoveryLoad(item.id)) load += w * c;
+      else if (isRecoveryCredit(item.id)) credits += w * c;
+      else credits += w * c;
+    });
+
+    const baseRecovery = clamp(credits - load, 0, 100);
+
+    const stressMult = stressMap[state.stress] ?? 1.0;
+
+    // Penalties (excluding stress to avoid double application)
+    let penProd = 1.0;
+    penProd *= alcoholMap[state.alcohol] ?? 1.0;
+    state.catalogs.pen.forEach(item=>{
+      if (item.type !== "penaltyToggle") return;
+      if (state.penalties[item.id]) penProd *= Number(item.multiplier) || 1.0;
+    });
+    const sh = Number(state.sliderValues.sleepHours ?? 0);
+    if (sh < 4) penProd *= 0.80;
+
+    const recovery = clamp(baseRecovery * stressMult * penProd, 0, 100);
+    return { baseRecovery, recovery };
+  }
+
+  function determineStatus(score){
+    const driftForcedByScore = score < 55;
+
+    const highAlcohol = state.alcohol === "High";
+    const highStress = state.stress === "High";
+    const binge = !!state.penalties["binge"];
+
+    const driftTriggersEnabled = !state.disableDriftTriggers;
+    const driftForcedByTriggers = driftTriggersEnabled && (highAlcohol || highStress || binge);
+
+    if (driftForcedByScore || driftForcedByTriggers) return "DRIFT";
+
+    if (state.mode === "High"){
+      if (score >= 80) return "HIGH OUTPUT";
+      if (score >= 65) return "ON TRACK";
+      return "HOLD";
+    }
+    if (state.mode === "Medium"){
+      if (score >= 75) return "SOLID";
+      if (score >= 60) return "ON TRACK";
+      return "HOLD";
+    }
+    if (score >= 70) return "RECOVERY-READY";
+    if (score >= 55) return "MAINTENANCE";
+    return "HOLD";
+  }
+
+  function computeScores(){
+    const baseScore = computeBaseScore();
+    const penaltyProduct = computePenaltyProduct();
+    const score = clamp(baseScore * penaltyProduct, 0, 100);
+
+    const rec = computeRecovery();
+    const status = determineStatus(score);
+
+    return { baseScore, penaltyProduct, score, baseRecovery: rec.baseRecovery, recovery: rec.recovery, status };
+  }
+
+  function recalcIfAllowed(){
+    if (state.personalizationMode) return;
+    renderResults(computeScores());
+  }
+
+  function ringSVG(value, color){
+    const pct = clamp(value,0,100);
+    const r = 62;
+    const c = 2 * Math.PI * r;
+    const off = c - (pct/100) * c;
+
+    return `
+      <svg viewBox="0 0 160 160" class="w-[152px] h-[152px]">
+        <circle cx="80" cy="80" r="${r}" fill="none" stroke="#143457" stroke-width="12"></circle>
+        <circle cx="80" cy="80" r="${r}" fill="none" stroke="${color}" stroke-width="12"
+                stroke-linecap="round"
+                stroke-dasharray="${c}"
+                stroke-dashoffset="${off}"
+                transform="rotate(-90 80 80)"></circle>
+        <text x="80" y="78" text-anchor="middle" class="mono" font-size="28" font-weight="700" fill="${color}">${Math.round(pct)}</text>
+        <text x="80" y="102" text-anchor="middle" font-size="12" font-weight="600" fill="rgba(191,219,254,0.85)">percent</text>
+      </svg>
+    `;
+  }
+
+  function renderResults(snap){
+    $("penaltyProduct").textContent = snap.penaltyProduct.toFixed(2);
+
+    $("baseScore").textContent = round1(snap.baseScore).toFixed(1);
+    $("finalScore").textContent = round1(snap.score).toFixed(1);
+    $("baseRecovery").textContent = round1(snap.baseRecovery).toFixed(1);
+    $("finalRecovery").textContent = round1(snap.recovery).toFixed(1);
+
+    const perfColor = scoreToColor(snap.score);
+    const recColor  = scoreToColor(snap.recovery);
+
+    $("perfRing").innerHTML = ringSVG(snap.score, perfColor);
+    $("recoveryRing").innerHTML = ringSVG(snap.recovery, recColor);
+
+    const badge = $("statusBadge");
+    badge.textContent = snap.status;
+    badge.style.borderColor = perfColor;
+    badge.style.background = "rgba(11,31,58,0.65)";
+    badge.style.color = perfColor;
+  }
+
+  // ---------- History ----------
+  function getHistoryArray(){
+    return Object.values(state.history || {}).sort((a,b)=> a.date.localeCompare(b.date));
+  }
+
+  function renderHistoryTable(){
+    const tbody = $("historyTable");
+    tbody.innerHTML = "";
+    const arr = getHistoryArray();
+    const last7 = arr.slice(-7).reverse();
+
+    last7.forEach(e=>{
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td class="py-2 pr-2">${e.date}</td>
+        <td class="py-2 px-2 text-right mono text-white font-semibold" style="color:${scoreToColor(e.score)}">${Math.round(e.score)}</td>
+        <td class="py-2 px-2 text-right mono text-white font-semibold" style="color:${scoreToColor(e.recovery)}">${Math.round(e.recovery)}</td>
+        <td class="py-2 pl-2 text-right"><span class="mono" style="color:${scoreToColor(e.score)}">${escapeHtml(e.status || "")}</span></td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    if (last7.length === 0){
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td class="py-2 text-blue-200/70" colspan="4">No saved entries.</td>`;
+      tbody.appendChild(tr);
+    }
+  }
+
+  // ---------- Builders ----------
+  function renderBuilders(){
+    renderSliderBuilder();
+    renderPerformanceBuilder();
+    renderPenaltiesBuilder();
+  }
+
+  function renderSliderBuilder(){
+    const tbody = $("sliderBuilderTable");
+    tbody.innerHTML = "";
+
+    const rows = state.catalogs.sliders.slice().sort(byOrder);
+    rows.forEach((item, idx)=>{
+      const selected = state.builderSelected.sliders.has(item.id);
+      const tr = document.createElement("tr");
+      tr.className = "border-t border-[#143457]";
+      tr.innerHTML = `
+        <td class="py-2 pr-2">
+          <input type="checkbox" ${selected ? "checked":""} data-id="${item.id}" class="selSlider" />
+        </td>
+        <td class="py-2 px-2 mono">${idx+1}</td>
+        <td class="py-2 px-2 text-sky-200 font-semibold">${escapeHtml(item.name)}</td>
+        <td class="py-2 px-2 text-right mono">${item.perfWeight}</td>
+        <td class="py-2 px-2 text-right mono">${item.recoveryWeight}</td>
+        <td class="py-2 px-2">${escapeHtml(item.impact)}</td>
+        <td class="py-2 px-2">${item.onDashboard ? "Yes" : "No"}</td>
+        <td class="py-2 pl-2 text-right">
+          <button class="btn rounded-lg px-2 py-1 text-xs font-semibold editSlider" data-id="${item.id}">Modify</button>
+          <button class="btn btn-danger rounded-lg px-2 py-1 text-xs font-semibold delSlider" data-id="${item.id}">Delete</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    tbody.querySelectorAll(".selSlider").forEach(cb=>{
+      cb.addEventListener("change", ()=>{
+        const id = cb.dataset.id;
+        if (cb.checked) state.builderSelected.sliders.add(id);
+        else state.builderSelected.sliders.delete(id);
+        saveState();
+      });
+    });
+
+    tbody.querySelectorAll(".editSlider").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const id = btn.dataset.id;
+        const item = state.catalogs.sliders.find(x=>x.id===id);
+        if (!item) return;
+
+        const newName = prompt("Name:", item.name);
+        if (newName) item.name = newName;
+
+        const pw = prompt("Performance weight:", String(item.perfWeight));
+        if (pw !== null && pw !== "") item.perfWeight = Number(pw) || item.perfWeight;
+
+        const rw = prompt("Recovery weight:", String(item.recoveryWeight));
+        if (rw !== null && rw !== "") item.recoveryWeight = Number(rw) || item.recoveryWeight;
+
+        const impact = prompt("Impact: performance, recovery, both", item.impact);
+        if (impact && ["performance","recovery","both"].includes(impact)) item.impact = impact;
+
+        const mm = prompt("Min,Max,Step as three comma values:", `${item.min},${item.max},${item.step}`);
+        if (mm){
+          const parts = mm.split(",").map(x=>x.trim());
+          if (parts.length === 3){
+            const a = Number(parts[0]), b = Number(parts[1]), c = Number(parts[2]);
+            if (Number.isFinite(a) && Number.isFinite(b) && Number.isFinite(c) && b > a && c > 0){
+              item.min = a; item.max = b; item.step = c;
+              if (item.completionType === "sleepCredit"){
+                // keep sleepCredit fields; user can still change min/max for display, credit stays
+              } else {
+                item.completionType = "linear";
+              }
+              state.sliderValues[item.id] = clamp(Number(state.sliderValues[item.id] ?? a), a, b);
+            }
+          }
+        }
+
+        saveState();
+        renderBuilders();
+        renderDashboard();
+      });
+    });
+
+    tbody.querySelectorAll(".delSlider").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const id = btn.dataset.id;
+
+        // protect the core sliders
+        const protectedIds = new Set(baseSliders().map(x=>x.id));
+        if (protectedIds.has(id)) { alert("Core sliders cannot be deleted."); return; }
+
+        const idx = state.catalogs.sliders.findIndex(x=>x.id===id);
+        if (idx < 0) return;
+
+        state.catalogs.sliders.splice(idx,1);
+        delete state.sliderValues[id];
+        state.builderSelected.sliders.delete(id);
+        state.selected.sliders.delete(id);
+
+        saveState();
+        renderBuilders();
+        renderDashboard();
+      });
+    });
+  }
+
+  function renderPerformanceBuilder(){
+    const tbody = $("performanceBuilderTable");
+    tbody.innerHTML = "";
+
+    const rows = state.catalogs.perf.slice().sort(byOrder);
+    rows.forEach((item, idx)=>{
+      const selected = state.builderSelected.perf.has(item.id);
+
+      const tr = document.createElement("tr");
+      tr.className = "border-t border-[#143457]";
+      tr.innerHTML = `
+        <td class="py-2 pr-2">
+          <input type="checkbox" ${selected ? "checked":""} data-id="${item.id}" class="selPerf" />
+        </td>
+        <td class="py-2 px-2 mono">${idx+1}</td>
+        <td class="py-2 px-2 text-sky-200 font-semibold">${escapeHtml(item.name)}</td>
+        <td class="py-2 px-2 text-right mono">${item.perfWeight}</td>
+        <td class="py-2 px-2 text-right mono">${item.recoveryWeight}</td>
+        <td class="py-2 px-2">${escapeHtml(item.impact)}</td>
+        <td class="py-2 px-2">${item.onDashboard ? "Yes" : "No"}</td>
+        <td class="py-2 pl-2 text-right">
+          <button class="btn rounded-lg px-2 py-1 text-xs font-semibold editPerf" data-id="${item.id}">Modify</button>
+          <button class="btn btn-danger rounded-lg px-2 py-1 text-xs font-semibold delPerf" data-id="${item.id}">Delete</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    tbody.querySelectorAll(".selPerf").forEach(cb=>{
+      cb.addEventListener("change", ()=>{
+        const id = cb.dataset.id;
+        if (cb.checked) state.builderSelected.perf.add(id);
+        else state.builderSelected.perf.delete(id);
+        saveState();
+      });
+    });
+
+    tbody.querySelectorAll(".editPerf").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const id = btn.dataset.id;
+        const item = state.catalogs.perf.find(x=>x.id===id);
+        if (!item) return;
+
+        const newName = prompt("Name:", item.name);
+        if (newName) item.name = newName;
+
+        const pw = prompt("Performance weight:", String(item.perfWeight));
+        if (pw !== null && pw !== "") item.perfWeight = Number(pw) || item.perfWeight;
+
+        const rw = prompt("Recovery weight:", String(item.recoveryWeight));
+        if (rw !== null && rw !== "") item.recoveryWeight = Number(rw) || item.recoveryWeight;
+
+        const impact = prompt("Impact: performance, recovery, both", item.impact);
+        if (impact && ["performance","recovery","both"].includes(impact)) item.impact = impact;
+
+        saveState();
+        renderBuilders();
+        renderDashboard();
+      });
+    });
+
+    tbody.querySelectorAll(".delPerf").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const id = btn.dataset.id;
+
+        const protectedIds = new Set(basePerfToggles().map(x=>x.id));
+        if (protectedIds.has(id)) { alert("Core performance indicators cannot be deleted."); return; }
+
+        const idx = state.catalogs.perf.findIndex(x=>x.id===id);
+        if (idx < 0) return;
+
+        state.catalogs.perf.splice(idx,1);
+        delete state.toggles[id];
+        state.builderSelected.perf.delete(id);
+        state.selected.perf.delete(id);
+
+        saveState();
+        renderBuilders();
+        renderDashboard();
+      });
+    });
+  }
+
+  function renderPenaltiesBuilder(){
+    const tbody = $("penaltiesBuilderTable");
+    tbody.innerHTML = "";
+
+    const rows = state.catalogs.pen.slice().sort(byOrder);
+    rows.forEach((item, idx)=>{
+      const selected = state.builderSelected.pen.has(item.id);
+
+      const tr = document.createElement("tr");
+      tr.className = "border-t border-[#143457]";
+      tr.innerHTML = `
+        <td class="py-2 pr-2">
+          <input type="checkbox" ${selected ? "checked":""} data-id="${item.id}" class="selPen" />
+        </td>
+        <td class="py-2 px-2 mono">${idx+1}</td>
+        <td class="py-2 px-2 text-sky-200 font-semibold">${escapeHtml(item.name)}</td>
+        <td class="py-2 px-2 text-right mono">${Number(item.multiplier).toFixed(2)}</td>
+        <td class="py-2 px-2">${escapeHtml(item.impact)}</td>
+        <td class="py-2 px-2">${item.onDashboard ? "Yes" : "No"}</td>
+        <td class="py-2 pl-2 text-right">
+          <button class="btn rounded-lg px-2 py-1 text-xs font-semibold editPen" data-id="${item.id}">Modify</button>
+          <button class="btn btn-danger rounded-lg px-2 py-1 text-xs font-semibold delPen" data-id="${item.id}">Delete</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    tbody.querySelectorAll(".selPen").forEach(cb=>{
+      cb.addEventListener("change", ()=>{
+        const id = cb.dataset.id;
+        if (cb.checked) state.builderSelected.pen.add(id);
+        else state.builderSelected.pen.delete(id);
+        saveState();
+      });
+    });
+
+    tbody.querySelectorAll(".editPen").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const id = btn.dataset.id;
+        const item = state.catalogs.pen.find(x=>x.id===id);
+        if (!item) return;
+
+        const newName = prompt("Name:", item.name);
+        if (newName) item.name = newName;
+
+        const m = prompt("Multiplier (0.0-1.0):", String(item.multiplier));
+        if (m !== null && m !== ""){
+          const mv = Number(m);
+          if (Number.isFinite(mv) && mv > 0 && mv <= 1) item.multiplier = mv;
+        }
+
+        const impact = prompt("Impact: performance, recovery, both", item.impact);
+        if (impact && ["performance","recovery","both"].includes(impact)) item.impact = impact;
+
+        saveState();
+        renderBuilders();
+        renderDashboard();
+      });
+    });
+
+    tbody.querySelectorAll(".delPen").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const id = btn.dataset.id;
+
+        const protectedIds = new Set(basePenalties().map(x=>x.id));
+        if (protectedIds.has(id)) { alert("Core penalties cannot be deleted."); return; }
+
+        const idx = state.catalogs.pen.findIndex(x=>x.id===id);
+        if (idx < 0) return;
+
+        state.catalogs.pen.splice(idx,1);
+        delete state.penalties[id];
+        state.builderSelected.pen.delete(id);
+        state.selected.pen.delete(id);
+
+        saveState();
+        renderBuilders();
+        renderDashboard();
+      });
+    });
+  }
+
+  // ---------- Analytics ----------
+  function updateAnalytics(days=7){
+    const arr = getHistoryArray();
+    const end = new Date(state.date);
+    const start = new Date(end);
+    start.setDate(start.getDate() - (days - 1));
+
+    const filtered = arr.filter(e=>{
+      const d = new Date(e.date + "T00:00:00");
+      return d >= start && d <= end;
+    });
+
+    const avg = (xs)=> xs.length ? xs.reduce((a,x)=>a+x,0)/xs.length : 0;
+    const aPerf = avg(filtered.map(e=>e.score));
+    const aRec = avg(filtered.map(e=>e.recovery));
+    const driftRate = filtered.length ? (filtered.filter(e=>e.status==="DRIFT").length / filtered.length) : 0;
+
+    $("aPerf").textContent = round1(aPerf).toFixed(1);
+    $("aRec").textContent = round1(aRec).toFixed(1);
+    $("aDrift").textContent = Math.round(driftRate * 100) + "%";
+
+    const streaks = computeStreaks(filtered, end);
+    $("aStreak").textContent = String(streaks.current);
+    $("aBest").textContent = String(streaks.best);
+
+    drawChart(filtered, days);
+
+    const tops = computeTopCounts(filtered);
+    $("topBehaviors").innerHTML = tops.behaviors.length
+      ? tops.behaviors.map(x=>`<div class="flex justify-between gap-2"><span>${escapeHtml(x.name)}</span><span class="mono text-white font-semibold">${x.count}</span></div>`).join("")
+      : `<div class="text-blue-200/70">No data.</div>`;
+
+    $("topPenalties").innerHTML = tops.penalties.length
+      ? tops.penalties.map(x=>`<div class="flex justify-between gap-2"><span>${escapeHtml(x.name)}</span><span class="mono text-white font-semibold">${x.count}</span></div>`).join("")
+      : `<div class="text-blue-200/70">No data.</div>`;
+  }
+
+  function computeStreaks(filtered, endDate){
+    const byDate = new Map(filtered.map(e=>[e.date, e]));
+    const end = new Date(endDate);
+
+    let current = 0;
+    for (let i=0;i<3650;i++){
+      const d = new Date(end);
+      d.setDate(d.getDate() - i);
+      const key = isoDate(d);
+      const e = byDate.get(key);
+      if (!e) break;
+      const ok = e.status !== "DRIFT" && e.score >= 65;
+      if (!ok) break;
+      current++;
+    }
+
+    const seq = filtered.slice().sort((a,b)=>a.date.localeCompare(b.date));
+    let best = 0, run = 0;
+    for (const e of seq){
+      const ok = e.status !== "DRIFT" && e.score >= 65;
+      if (ok) { run++; best = Math.max(best, run); }
+      else run = 0;
+    }
+    return { current, best };
+  }
+
+  function computeTopCounts(filtered){
+    const behaviorCounts = new Map();
+    const penaltyCounts = new Map();
+
+    filtered.forEach(e=>{
+      Object.entries(e.toggles || {}).forEach(([id,val])=>{
+        if (!val) return;
+        const item = state.catalogs.perf.find(x=>x.id===id);
+        const name = item ? item.name : id;
+        behaviorCounts.set(name, (behaviorCounts.get(name)||0)+1);
+      });
+
+      if (e.alcohol && e.alcohol !== "None"){
+        const k = "Alcohol: " + e.alcohol;
+        penaltyCounts.set(k, (penaltyCounts.get(k)||0)+1);
+      }
+      if (e.stress && e.stress !== "None"){
+        const k = "Stress: " + e.stress;
+        penaltyCounts.set(k, (penaltyCounts.get(k)||0)+1);
+      }
+
+      Object.entries(e.penalties || {}).forEach(([id,val])=>{
+        if (!val) return;
+        const item = state.catalogs.pen.find(x=>x.id===id);
+        const name = item ? item.name : id;
+        penaltyCounts.set(name, (penaltyCounts.get(name)||0)+1);
+      });
+
+      const sh = Number(e.sliderValues?.sleepHours ?? 0);
+      if (sh < 4) penaltyCounts.set("Sleep < 4hrs", (penaltyCounts.get("Sleep < 4hrs")||0)+1);
+    });
+
+    const topN = (m, n)=> [...m.entries()].sort((a,b)=>b[1]-a[1]).slice(0,n).map(([name,count])=>({name,count}));
+    return { behaviors: topN(behaviorCounts, 8), penalties: topN(penaltyCounts, 8) };
+  }
+
+  function drawChart(filtered, days){
+    const canvas = $("chart");
+    const ctx = canvas.getContext("2d");
+    const W = canvas.width;
+    const H = canvas.height;
+
+    ctx.clearRect(0,0,W,H);
+
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = "#143457";
+    ctx.strokeRect(40, 15, W-55, H-45);
+
+    ctx.strokeStyle = "rgba(20,52,87,0.65)";
+    for (let i=0;i<=5;i++){
+      const y = 15 + i*(H-45)/5;
+      ctx.beginPath();
+      ctx.moveTo(40,y);
+      ctx.lineTo(W-15,y);
+      ctx.stroke();
+
+      const val = Math.round(100 - i*20);
+      ctx.fillStyle = "rgba(191,219,254,0.75)";
+      ctx.font = "12px system-ui, -apple-system, Segoe UI, Roboto";
+      ctx.fillText(String(val), 8, y+4);
+    }
+
+    const ptsPerf = seriesPoints(filtered, "score", days);
+    const ptsRec = seriesPoints(filtered, "recovery", days);
+
+    drawLine(ctx, ptsPerf, "#38bdf8");
+    drawLine(ctx, ptsRec, "#f97316");
+
+    ctx.fillStyle = "rgba(191,219,254,0.85)";
+    ctx.fillText("Performance", 48, H-14);
+    ctx.fillText("Recovery", 148, H-14);
+
+    ctx.fillStyle = "#38bdf8";
+    ctx.fillRect(40, H-22, 6, 6);
+    ctx.fillStyle = "#f97316";
+    ctx.fillRect(140, H-22, 6, 6);
+  }
+
+  function seriesPoints(filtered, key, days){
+    const end = new Date(state.date);
+    const start = new Date(end);
+    start.setDate(start.getDate() - (days - 1));
+
+    const byDate = new Map(filtered.map(e=>[e.date, e]));
+    const pts = [];
+    for (let i=0;i<days;i++){
+      const d = new Date(start);
+      d.setDate(d.getDate() + i);
+      const iso = isoDate(d);
+      const e = byDate.get(iso);
+      const v = e ? clamp(Number(e[key]||0),0,100) : null;
+      pts.push({ i, v });
+    }
+    return pts;
+  }
+
+  function drawLine(ctx, pts, stroke){
+    const canvas = ctx.canvas;
+    const W = canvas.width;
+    const H = canvas.height;
+    const x0 = 40, y0 = 15, w = W-55, h = H-45;
+
+    const maxX = Math.max(pts.length-1, 1);
+
+    ctx.strokeStyle = stroke;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+
+    let started = false;
+    pts.forEach(p=>{
+      if (p.v === null) return;
+      const x = x0 + (p.i / maxX) * w;
+      const y = y0 + (1 - p.v/100) * h;
+      if (!started){ ctx.moveTo(x,y); started = true; }
+      else ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+  }
+
+  // ---------- Coach ----------
+  function updateCoach(){
+    const arr = getHistoryArray();
+    const end = new Date(state.date);
+    const start = new Date(end);
+    start.setDate(start.getDate() - 27);
+
+    const filtered = arr.filter(e=>{
+      const d = new Date(e.date + "T00:00:00");
+      return d >= start && d <= end;
+    });
+
+    const avg = (xs)=> xs.length ? xs.reduce((a,x)=>a+x,0)/xs.length : 0;
+    const aPerf = avg(filtered.map(e=>e.score));
+    const aRec = avg(filtered.map(e=>e.recovery));
+    const driftRate = filtered.length ? (filtered.filter(e=>e.status==="DRIFT").length / filtered.length) : 0;
+
+    const recs = [];
+    if (!filtered.length){
+      recs.push("No saved entries in the last 28 days. Save at least 7 days to generate meaningful recommendations.");
+    } else {
+      if (driftRate >= 0.30){
+        recs.push("High drift rate detected. Consider increasing penalty severity for frequent triggers or increasing recovery weights for Sleep and Stretching.");
+      }
+      if (aPerf >= 75 && aRec < 55){
+        recs.push("High training with low recovery detected. Consider increasing Recovery weights for Sleep and Stretching. Consider increasing Load weights for Cardio or Resistance so recovery reflects training cost more strongly.");
+      }
+      if (aRec < 50){
+        recs.push("Recovery is consistently low. Consider raising Recovery weights for Steps, Sunlight, and Supplement Stack, or reducing recovery load sensitivity by reducing Recovery weights on Cardio and Resistance.");
+      }
+      if (aPerf < 60){
+        recs.push("Performance is consistently low. Consider raising Performance weights for the hardest high-value behaviors and removing low-value indicators from the dashboard.");
+      }
+      recs.push("Apply changes only after reviewing whether the scoring still reflects what matters most right now.");
+    }
+
+    $("coachText").innerHTML = recs.map(t=>`<div class="card rounded-xl p-3">${escapeHtml(t)}</div>`).join("");
+  }
+
+  function applyCoachSuggestions(){
+    const arr = getHistoryArray();
+    const end = new Date(state.date);
+    const start = new Date(end);
+    start.setDate(start.getDate() - 27);
+
+    const filtered = arr.filter(e=>{
+      const d = new Date(e.date + "T00:00:00");
+      return d >= start && d <= end;
+    });
+
+    const avg = (xs)=> xs.length ? xs.reduce((a,x)=>a+x,0)/xs.length : 0;
+    const aPerf = avg(filtered.map(e=>e.score));
+    const aRec = avg(filtered.map(e=>e.recovery));
+    const driftRate = filtered.length ? (filtered.filter(e=>e.status==="DRIFT").length / filtered.length) : 0;
+
+    if (aRec < 55){
+      bumpRecoveryWeight("sleepHours", +3);
+      bumpRecoveryWeight("stretching", +2);
+      bumpRecoveryWeight("sunlight", +1);
+    }
+    if (aPerf >= 75 && aRec < 55){
+      bumpRecoveryWeight("cardio", +2);
+      bumpRecoveryWeight("resistanceSets", +2);
+    }
+    if (driftRate >= 0.30){
+      bumpPenaltyMultiplier("late", -0.03);
+      bumpPenaltyMultiplier("grazing", -0.02);
+      bumpPenaltyMultiplier("ultra", -0.03);
+    }
+    if (aPerf < 60){
+      bumpPerfWeight("protein", +2);
+      bumpPerfWeight("steps", +1);
+      bumpPerfWeight("deepWork", +1);
+    }
+  }
+
+  function bumpPerfWeight(id, delta){
+    const item = state.catalogs.perf.find(x=>x.id===id);
+    if (!item) return;
+    item.perfWeight = Math.max(0, Math.round((Number(item.perfWeight||0) + delta) * 10) / 10);
+  }
+
+  function bumpRecoveryWeight(id, delta){
+    let item = state.catalogs.sliders.find(x=>x.id===id);
+    if (!item) item = state.catalogs.perf.find(x=>x.id===id);
+    if (!item) return;
+    item.recoveryWeight = Math.max(0, Math.round((Number(item.recoveryWeight||0) + delta) * 10) / 10);
+  }
+
+  function bumpPenaltyMultiplier(id, delta){
+    const item = state.catalogs.pen.find(x=>x.id===id);
+    if (!item) return;
+    const m = clamp(Number(item.multiplier||1) + delta, 0.50, 1.0);
+    item.multiplier = Math.round(m * 100) / 100;
+  }
+
+  // ---------- Boot ----------
+  syncModeUI();
+  syncSegments();
+  setTab(state.tab);
+
+  // If current date has a saved entry, load it. If not, ensure clean day.
+  if (state.history?.[state.date]) loadDayIntoInputs(state.date);
+  else resetInputsForNewDate();
+
+  renderDashboard();
+  renderResults(computeScores());
+})();
+</script>
+</body>
+</html>
