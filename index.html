@@ -34,6 +34,23 @@
     .disabled{ opacity:0.55; pointer-events:none; filter:saturate(0.9); }
     .selectable{ cursor:pointer; }
     .selected-outline{ outline:2px solid rgba(125,211,252,0.95); outline-offset:2px; }
+
+    /* Tier gating helpers (INSERTED ONLY) */
+    .locked-tab{ opacity:0.65; }
+    .lock-badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border:1px solid rgba(20,52,87,0.9);
+      background:rgba(10,27,51,0.9);
+      border-radius:999px;
+      padding:0 8px;
+      height:20px;
+      font-size:11px;
+      line-height:20px;
+      margin-left:6px;
+      color:rgba(191,219,254,0.85);
+    }
   </style>
 </head>
 
@@ -45,7 +62,21 @@
           <div class="text-sky-200 text-xl font-semibold leading-tight">Nuanced Performance Tracker</div>
           <div class="text-blue-200/70 text-sm">Mobile-first dashboard with performance and recovery scoring.</div>
         </div>
-        <div class="flex items-center gap-2">
+
+        <!-- Header controls (INSERTED ONLY) -->
+        <div class="flex flex-wrap items-center justify-end gap-2">
+          <button id="btnTier" class="btn rounded-lg px-3 py-2 text-sm font-semibold">
+            Tier: <span id="tierLabel" class="mono text-white font-semibold">Free</span>
+          </button>
+
+          <button id="btnOwner" class="btn rounded-lg px-3 py-2 text-sm font-semibold">
+            Owner: <span id="ownerLabel" class="mono text-white font-semibold">Off</span>
+          </button>
+
+          <button id="btnChangeOwnerPin" class="btn rounded-lg px-3 py-2 text-sm font-semibold hidden">
+            Change PIN
+          </button>
+
           <button id="btnSave" class="btn btn-primary rounded-lg px-3 py-2 text-sm font-semibold text-white">Save Day</button>
           <button id="btnClearHistory" class="btn rounded-lg px-3 py-2 text-sm font-semibold">Clear History</button>
         </div>
@@ -443,6 +474,40 @@
     </main>
   </div>
 
+  <!-- Tier modal (INSERTED ONLY) -->
+  <div id="tierModal" class="fixed inset-0 hidden" style="background:rgba(0,0,0,0.55);">
+    <div class="min-h-full flex items-center justify-center p-4">
+      <div class="card rounded-2xl w-full max-w-lg p-4">
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <div class="text-sky-200 text-lg font-semibold">Upgrade Required</div>
+            <div id="tierModalSub" class="text-blue-200/70 text-sm mt-1">This feature requires a higher tier.</div>
+          </div>
+          <button id="btnCloseTierModal" class="btn rounded-lg px-3 py-2 text-sm font-semibold">Close</button>
+        </div>
+
+        <div class="mt-4 grid grid-cols-1 gap-2">
+          <button class="btn rounded-xl px-4 py-3 text-left tierPick" data-tier="Free">
+            <div class="text-sky-200 font-semibold">Free</div>
+            <div class="text-blue-200/70 text-sm">Dashboard, Tutorial.</div>
+          </button>
+          <button class="btn rounded-xl px-4 py-3 text-left tierPick" data-tier="Pro">
+            <div class="text-sky-200 font-semibold">Pro</div>
+            <div class="text-blue-200/70 text-sm">Analytics.</div>
+          </button>
+          <button class="btn rounded-xl px-4 py-3 text-left tierPick" data-tier="Elite">
+            <div class="text-sky-200 font-semibold">Elite</div>
+            <div class="text-blue-200/70 text-sm">Builders, Consistency Coach.</div>
+          </button>
+        </div>
+
+        <div class="mt-4 text-blue-200/70 text-xs">
+          Owner mode can override access locally. This MVP stores tier locally in the browser.
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- PWA: register service worker (INSERTED ONLY) -->
   <script>
     if ("serviceWorker" in navigator) {
@@ -492,6 +557,132 @@
 
   // ---------- Storage key ----------
   const LS_KEY = "nuance_tracker_v2";
+
+  // ---------- Tier gating (INSERTED ONLY) ----------
+  const TIER_ORDER = ["Free","Pro","Elite"];
+  const TAB_REQUIREMENTS = {
+    dashboard: "Free",
+    tutorial: "Free",
+    analytics: "Pro",
+    sliderBuilder: "Elite",
+    performanceBuilder: "Elite",
+    penaltiesBuilder: "Elite",
+    coach: "Elite"
+  };
+
+  function tierRank(t){ return Math.max(0, TIER_ORDER.indexOf(t || "Free")); }
+  function meetsTier(userTier, requiredTier){
+    return tierRank(userTier) >= tierRank(requiredTier);
+  }
+
+  function requiredTierForTab(tab){
+    return TAB_REQUIREMENTS[tab] || "Elite";
+  }
+
+  function openTierModal(tab){
+    const modal = document.getElementById("tierModal");
+    const sub = document.getElementById("tierModalSub");
+    const req = requiredTierForTab(tab);
+    const t = state.userTier || "Free";
+    sub.textContent = `“${tabLabel(tab)}” requires ${req}. Your tier is ${t}.`;
+    modal.classList.remove("hidden");
+  }
+
+  function closeTierModal(){
+    document.getElementById("tierModal").classList.add("hidden");
+  }
+
+  function tabLabel(tab){
+    const map = {
+      dashboard:"Dashboard",
+      tutorial:"Tutorial",
+      analytics:"Analytics",
+      sliderBuilder:"Slider Input Builder",
+      performanceBuilder:"Performance Builder",
+      penaltiesBuilder:"Penalties Builder",
+      coach:"Consistency Coach"
+    };
+    return map[tab] || tab;
+  }
+
+  // Owner override (Option 2) uses local PIN hash (INSERTED ONLY)
+  async function sha256Hex(str){
+    const data = new TextEncoder().encode(str);
+    const hash = await crypto.subtle.digest("SHA-256", data);
+    const bytes = Array.from(new Uint8Array(hash));
+    return bytes.map(b=>b.toString(16).padStart(2,"0")).join("");
+  }
+
+  async function ensureOwnerPin(){
+    if (state.ownerPinHash) return true;
+    const pin = prompt("Set Owner PIN (4-12 digits). This unlocks Owner override on this device.");
+    if (!pin) return false;
+    if (!/^\d{4,12}$/.test(pin)){
+      alert("PIN must be 4 to 12 digits.");
+      return false;
+    }
+    state.ownerPinHash = await sha256Hex(pin);
+    saveState();
+    return true;
+  }
+
+  async function verifyOwnerPin(){
+    if (!state.ownerPinHash){
+      const ok = await ensureOwnerPin();
+      return ok;
+    }
+    const pin = prompt("Enter Owner PIN:");
+    if (!pin) return false;
+    const h = await sha256Hex(pin);
+    return h === state.ownerPinHash;
+  }
+
+  function hasAccess(tab){
+    if (state.ownerOverride) return true;
+    const req = requiredTierForTab(tab);
+    return meetsTier(state.userTier || "Free", req);
+  }
+
+  function syncTierUI(){
+    const tierLabelEl = document.getElementById("tierLabel");
+    if (tierLabelEl) tierLabelEl.textContent = state.userTier || "Free";
+  }
+
+  function syncOwnerUI(){
+    const ownerLabelEl = document.getElementById("ownerLabel");
+    const btnOwner = document.getElementById("btnOwner");
+    const btnChange = document.getElementById("btnChangeOwnerPin");
+
+    if (ownerLabelEl) ownerLabelEl.textContent = state.ownerOverride ? "On" : "Off";
+    if (btnOwner) btnOwner.classList.toggle("btn-primary", !!state.ownerOverride);
+    if (btnChange) btnChange.classList.toggle("hidden", !state.ownerOverride);
+  }
+
+  function renderTabLocks(){
+    document.querySelectorAll(".tabBtn").forEach(b=>{
+      const tab = b.dataset.tab;
+      const req = requiredTierForTab(tab);
+      const locked = !hasAccess(tab);
+
+      // Remove previous lock badge
+      const existing = b.querySelector(".lock-badge");
+      if (existing) existing.remove();
+
+      b.classList.toggle("locked-tab", locked);
+
+      if (!state.ownerOverride && req !== "Free"){
+        const badge = document.createElement("span");
+        badge.className = "lock-badge";
+        badge.textContent = req;
+        b.appendChild(badge);
+      }
+
+      const t = state.userTier || "Free";
+      b.title = state.ownerOverride
+        ? "Owner override enabled"
+        : (locked ? `Locked. Requires ${req}. Your tier is ${t}.` : `Unlocked. Tier: ${t}.`);
+    });
+  }
 
   // ---------- Base catalogs (defaults) ----------
   // completionType:
@@ -596,6 +787,11 @@
     alcohol:"None",
     stress:"None",
 
+    // Tier gating state (INSERTED ONLY)
+    userTier:"Free",
+    ownerOverride:false,
+    ownerPinHash:"",
+
     // Stored catalogs (plain objects). Persisted.
     catalogs: {
       sliders: [...baseSliders(), ...makePlaceholders("sl", 15, "slider", 100)],
@@ -659,6 +855,12 @@
     merged.toggles = merged.toggles || {};
     merged.penalties = merged.penalties || {};
     merged.history = merged.history || {};
+
+    // Tier fields (INSERTED ONLY)
+    if (!merged.userTier) merged.userTier = "Free";
+    if (merged.ownerOverride === undefined) merged.ownerOverride = false;
+    if (!merged.ownerPinHash) merged.ownerPinHash = "";
+
     return hydrate(reviveSets(merged));
   }
 
@@ -710,6 +912,76 @@
   // ---------- Init ----------
   let state = loadState();
 
+  // Tier modal wiring (INSERTED ONLY)
+  $("btnCloseTierModal").addEventListener("click", closeTierModal);
+  document.getElementById("tierModal").addEventListener("click", (e)=>{
+    if (e.target && e.target.id === "tierModal") closeTierModal();
+  });
+  document.querySelectorAll(".tierPick").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      state.userTier = btn.dataset.tier || "Free";
+      saveState();
+      syncTierUI();
+      renderTabLocks();
+      closeTierModal();
+
+      // If current tab becomes locked after downgrade, send user to dashboard
+      if (!hasAccess(state.tab)){
+        setTab("dashboard", { bypassGate:true });
+      }
+    });
+  });
+
+  $("btnTier").addEventListener("click", ()=>{
+    openTierModal(state.tab || "dashboard");
+  });
+
+  $("btnOwner").addEventListener("click", async ()=>{
+    if (!state.ownerOverride){
+      const ok = await verifyOwnerPin();
+      if (!ok){
+        alert("Owner PIN incorrect.");
+        return;
+      }
+      state.ownerOverride = true;
+      saveState();
+      syncOwnerUI();
+      renderTabLocks();
+      return;
+    }
+    // turning off owner override requires PIN as well
+    const ok = await verifyOwnerPin();
+    if (!ok){
+      alert("Owner PIN incorrect.");
+      return;
+    }
+    state.ownerOverride = false;
+    saveState();
+    syncOwnerUI();
+    renderTabLocks();
+
+    if (!hasAccess(state.tab)){
+      setTab("dashboard", { bypassGate:true });
+    }
+  });
+
+  $("btnChangeOwnerPin").addEventListener("click", async ()=>{
+    const ok = await verifyOwnerPin();
+    if (!ok){
+      alert("Owner PIN incorrect.");
+      return;
+    }
+    const pin = prompt("Enter new Owner PIN (4-12 digits):");
+    if (!pin) return;
+    if (!/^\d{4,12}$/.test(pin)){
+      alert("PIN must be 4 to 12 digits.");
+      return;
+    }
+    state.ownerPinHash = await sha256Hex(pin);
+    saveState();
+    alert("Owner PIN updated.");
+  });
+
   // Date picker range
   const datePicker = $("datePicker");
   const today = new Date();
@@ -724,7 +996,15 @@
     btn.addEventListener("click", ()=> setTab(btn.dataset.tab));
   });
 
-  function setTab(tab){
+  function setTab(tab, opts){
+    const bypassGate = !!opts?.bypassGate;
+
+    // Tier gating check (INSERTED ONLY)
+    if (!bypassGate && !hasAccess(tab)){
+      openTierModal(tab);
+      return;
+    }
+
     state.tab = tab;
     document.querySelectorAll(".tabBtn").forEach(b=>{
       b.classList.toggle("tab-on", b.dataset.tab === tab);
@@ -1979,7 +2259,13 @@
   // ---------- Boot ----------
   syncModeUI();
   syncSegments();
-  setTab(state.tab);
+
+  // Tier UI boot (INSERTED ONLY)
+  syncTierUI();
+  syncOwnerUI();
+  renderTabLocks();
+
+  setTab(state.tab, { bypassGate:true });
 
   // If current date has a saved entry, load it. If not, ensure clean day.
   if (state.history?.[state.date]) loadDayIntoInputs(state.date);
