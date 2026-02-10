@@ -40,12 +40,6 @@
     .selectable{ cursor:pointer; }
     .selected-outline{ outline:2px solid rgba(125,211,252,0.95); outline-offset:2px; }
 
-    /* Personalization selection checkbox (Patch B) */
-.selbox {
-  width: 18px;
-  height: 18px;
-  accent-color: #38bdf8;
-}
     /* Tier gating helpers */
     .locked-tab{ opacity:0.65; }
     .lock-badge{
@@ -1396,22 +1390,7 @@
   });
 
   // ---------- Dashboard rendering ----------
-  function setInputsEnabled(){
-  const dash = $("tab-dashboard");
-  const controls = dash.querySelectorAll(
-    "input,button.segAlcohol,button.segStress,.toggleBtn,.sliderEl"
-  );
-
-  controls.forEach(el=>{
-    el.removeAttribute("disabled");
-    el.classList.remove("disabled");
-  });
-
-  // Highlight move buttons only when Personalization Mode is ON
-  $("btnMoveSliders").classList.toggle("btn-primary", state.personalizationMode);
-  $("btnMovePerformance").classList.toggle("btn-primary", state.personalizationMode);
-  $("btnMovePenalties").classList.toggle("btn-primary", state.personalizationMode);
-}
+  function setInputsEnabled(enabled){
 
     const dash = $("tab-dashboard");
     const controls = dash.querySelectorAll("input,button.segAlcohol,button.segStress,.toggleBtn,.sliderEl");
@@ -1512,60 +1491,6 @@
   }
 
   function renderPerformanceToggles(){
-  const wrap = $("performanceToggles");
-  wrap.innerHTML = "";
-  const items = state.catalogs.perf
-    .filter(x=>x.onDashboard && x.type==="toggle")
-    .slice()
-    .sort(byOrder);
-
-  items.forEach(item=>{
-    const on = !!state.toggles[item.id];
-    const selected = state.selected.perf.has(item.id);
-
-    const row = document.createElement("div");
-    row.className = "relative";
-
-    // Selection checkbox (only in Personalization Mode)
-    if (state.personalizationMode){
-      const cb = document.createElement("input");
-      cb.type = "checkbox";
-      cb.className = "selbox absolute top-2 right-2 z-10";
-      cb.checked = selected;
-      cb.addEventListener("click", (e)=>{
-        e.stopPropagation();
-        if (cb.checked) state.selected.perf.add(item.id);
-        else state.selected.perf.delete(item.id);
-        saveState();
-      });
-      row.appendChild(cb);
-    }
-
-    const btn = document.createElement("button");
-    btn.className =
-      "toggleBtn w-full rounded-xl px-3 py-3 text-left text-sm font-semibold chip " +
-      (on ? "chip-on" : "");
-
-    btn.innerHTML = `
-      <div class="text-sky-200">${escapeHtml(item.name)}</div>
-      <div class="text-blue-200/70 text-xs">
-        Perf <span class="mono">${item.perfWeight}</span> |
-        Rec <span class="mono">${item.recoveryWeight}</span>
-      </div>
-    `;
-
-    // ALWAYS toggle on click
-    btn.addEventListener("click", ()=>{
-      state.toggles[item.id] = on ? 0 : 1;
-      saveState();
-      renderPerformanceToggles();
-      recalcIfAllowed();
-    });
-
-    row.appendChild(btn);
-    wrap.appendChild(row);
-  });
-}
 
     const wrap = $("performanceToggles");
     wrap.innerHTML = "";
@@ -1606,62 +1531,7 @@
     wrap.innerHTML = "";
     const items = state.catalogs.pen.filter(x=>x.onDashboard && x.type==="penaltyToggle").slice().sort(byOrder);
    items.forEach(item=>{
-  const on = !!state.penalties[item.id];
-  const selected = state.selected.pen.has(item.id);
-
-  const btn = document.createElement("button");
-  btn.type = "button";
-  btn.className = "toggleBtn rounded-xl px-3 py-3 text-left text-sm font-semibold chip " + (on ? "pen-on" : "");
-  if (state.personalizationMode) btn.classList.add("selectable");
-  if (state.personalizationMode && selected) btn.classList.add("selected-outline");
-
-  btn.innerHTML = `
-    <div class="flex items-start justify-between gap-2">
-      <div class="min-w-0">
-        <div class="text-sky-200">${escapeHtml(item.name)}</div>
-        <div class="text-blue-200/70 text-xs">Multiplier <span class="mono">${Number(item.multiplier).toFixed(2)}</span></div>
-      </div>
-      <button type="button"
-        class="miniToggle btn rounded-lg px-2 py-1 text-xs font-semibold ${on ? "btn-danger text-white" : ""}"
-        data-id="${item.id}"
-        aria-label="Toggle ${escapeHtml(item.name)}"
-      >${on ? "On" : "Off"}</button>
-    </div>
-  `;
-
-  // Card click = select/unselect when personalization is ON
-  btn.addEventListener("click", (e)=>{
-    const mini = e.target && e.target.classList && e.target.classList.contains("miniToggle");
-    if (mini) return;
-
-    if (state.personalizationMode){
-      if (state.selected.pen.has(item.id)) state.selected.pen.delete(item.id);
-      else state.selected.pen.add(item.id);
-      saveState();
-      renderPenaltyToggles();
-      return;
-    }
-
-    // Normal mode: toggle
-    state.penalties[item.id] = on ? 0 : 1;
-    saveState();
-    renderPenaltyToggles();
-    recalcIfAllowed();
-  });
-
-  // Mini toggle always toggles the value
-  btn.querySelector(".miniToggle").addEventListener("click", (e)=>{
-    e.preventDefault();
-    e.stopPropagation();
-    state.penalties[item.id] = state.penalties[item.id] ? 0 : 1;
-    saveState();
-    renderPenaltyToggles();
-    recalcIfAllowed();
-  });
-
-  wrap.appendChild(btn);
-});
-
+  
       const on = !!state.penalties[item.id];
       const selected = state.selected.pen.has(item.id);
 
@@ -2396,4 +2266,5 @@
 </script>
 </body>
 </html>
+
 
