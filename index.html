@@ -40,7 +40,6 @@
     .selectable{ cursor:pointer; }
     .selected-outline{ outline:2px solid rgba(125,211,252,0.95); outline-offset:2px; }
 
-    /* Tier gating helpers */
     .locked-tab{ opacity:0.65; }
     .lock-badge{
       display:inline-flex;
@@ -57,7 +56,6 @@
       color:rgba(191,219,254,0.85);
     }
 
-    /* Bottom nav */
     .bottom-nav{
       position:fixed;
       left:0; right:0; bottom:0;
@@ -67,7 +65,6 @@
       z-index:50;
     }
 
-    /* Slide deck */
     .deck-viewport{ overflow:hidden; }
     .deck{
       display:flex;
@@ -80,22 +77,47 @@
       flex:0 0 100%;
     }
 
-    /* Sub-tabs inside Builders */
     .subtab-on{
       background:rgba(34,197,94,0.18);
       border-color:rgba(134,239,172,0.65);
     }
+
+    .table-input{
+      width:90px;
+      background:#071426;
+      border:1px solid #143457;
+      border-radius:10px;
+      padding:6px 8px;
+      color:rgba(255,255,255,0.92);
+      font-size:13px;
+      text-align:right;
+    }
+    .table-input-wide{
+      width:220px;
+      text-align:left;
+    }
+    .mini-btn{
+      border:1px solid #143457;
+      background:#0a1b33;
+      border-radius:10px;
+      padding:6px 10px;
+      font-size:12px;
+      font-weight:700;
+      color:rgba(191,219,254,0.9);
+      white-space:nowrap;
+    }
+    .mini-btn:hover{ filter:brightness(1.08); }
+    .mini-danger{ background:rgba(220,38,38,0.35); border-color:rgba(252,165,165,0.8); color:#fff; }
+    .mini-primary{ background:rgba(2,132,199,0.35); border-color:rgba(125,211,252,0.8); color:#fff; }
   </style>
 </head>
 
 <body class="min-h-full text-blue-200/80">
-  <!-- Page wrapper; padding-bottom for fixed bottom nav -->
   <div class="mx-auto max-w-6xl px-3 pb-28">
     <header class="pt-4 pb-3">
       <div class="flex items-center justify-between gap-3">
         <div>
           <div class="text-sky-200 text-xl font-semibold leading-tight">Nuanced Performance Tracker</div>
-          <!-- Issue 8 handled later. Keeping here for now since you requested only 1 & 2. -->
         </div>
 
         <div class="flex flex-wrap items-center justify-end gap-2">
@@ -145,7 +167,7 @@
           <div class="flex items-center justify-between gap-3">
             <div>
               <div class="text-cyan-200 text-sm font-semibold">Personalization Mode</div>
-              <div class="text-blue-200/70 text-xs">Select indicators to move.</div>
+              <div class="text-blue-200/70 text-xs">Select indicators to move. Scoring freezes.</div>
             </div>
             <div class="flex items-center gap-2">
               <button id="btnPersonalize" class="btn rounded-lg px-3 py-2 text-sm font-semibold">Off</button>
@@ -159,7 +181,6 @@
       </div>
     </header>
 
-    <!-- MAIN: Slide deck viewport -->
     <main class="mt-3 deck-viewport">
       <div id="tabDeck" class="deck">
 
@@ -183,7 +204,7 @@
                   <div class="flex items-center justify-between gap-2">
                     <div>
                       <div class="text-cyan-200 text-sm font-semibold">Slider Inputs</div>
-                      <div class="text-blue-200/70 text-xs">Select indicators in Personalization Mode to move.</div>
+                      <div class="text-blue-200/70 text-xs">Select items in Personalization Mode to move.</div>
                     </div>
                     <button id="btnMoveSliders" class="btn rounded-lg px-3 py-2 text-sm font-semibold">Move Selected</button>
                   </div>
@@ -243,7 +264,7 @@
               <div class="flex items-start justify-between gap-3">
                 <div>
                   <div class="text-sky-200 text-lg font-semibold">Results</div>
-                  <div class="text-blue-200/70 text-sm">Performance and Recovery rings update in real time.</div>
+                  <div class="text-blue-200/70 text-sm">Performance and Recovery update in real time.</div>
                 </div>
                 <div id="statusBadge" class="rounded-lg px-3 py-2 text-sm font-semibold chip text-blue-100">STATUS</div>
               </div>
@@ -303,7 +324,8 @@
           <div class="card rounded-xl p-4">
             <div class="text-sky-200 text-lg font-semibold">Tutorial</div>
             <p class="mt-3 text-blue-200/80 leading-relaxed">
-              “This app is a structured way to build better habits and stay accountable...”
+              This app is a structured way to reflect what you did today and see how it translates into Performance and Recovery.
+              Do not chase points. Use the score to reveal patterns.
             </p>
 
             <div class="mt-4 card rounded-xl p-4">
@@ -313,9 +335,9 @@
                 <li>Adjust sliders and tap indicators to match your day.</li>
                 <li>Review Performance, Recovery, and Status.</li>
                 <li>Tap Save Day to store your entry.</li>
-                <li>Use Analytics to review trends and drift rate.</li>
-                <li>Enable Personalization Mode to move indicators into builders and adjust weights.</li>
-                <li>Use the Consistency Coach to generate recommendations.</li>
+                <li>Use Analytics to review trends.</li>
+                <li>Enable Personalization Mode to move indicators between Dashboard and Builders.</li>
+                <li>Use the Consistency Coach to propose changes.</li>
               </ol>
             </div>
           </div>
@@ -327,7 +349,7 @@
             <div class="flex items-start justify-between gap-3">
               <div>
                 <div class="text-sky-200 text-lg font-semibold">Analytics</div>
-                <div class="text-blue-200/70 text-sm">Weekly, Quarterly, Six-month, Yearly summaries from saved history.</div>
+                <div class="text-blue-200/70 text-sm">Summaries from saved history.</div>
               </div>
               <div class="flex flex-wrap gap-2">
                 <button class="periodBtn btn rounded-lg px-3 py-2 text-sm font-semibold tab-on" data-period="7">Weekly</button>
@@ -355,7 +377,7 @@
                   <canvas id="chart" width="900" height="260" class="w-full rounded-xl border border-[#143457] bg-[#071426]"></canvas>
                 </div>
                 <div class="mt-2 text-blue-200/70 text-xs">
-                  Performance and Recovery lines use the same period filter.
+                  Line 1 is Performance. Line 2 is Recovery. Markers show each saved day in the selected period.
                 </div>
               </div>
             </div>
@@ -373,13 +395,13 @@
           </div>
         </section>
 
-        <!-- Builders (NEW single container tab) -->
+        <!-- Builders -->
         <section id="tab-builders">
           <div class="card rounded-xl p-4">
             <div class="flex items-start justify-between gap-3">
               <div>
                 <div class="text-sky-200 text-lg font-semibold">Builders</div>
-                <div class="text-blue-200/70 text-sm">Manage sliders, indicators, and penalties. Add selected items back to dashboard.</div>
+                <div class="text-blue-200/70 text-sm">Edit weights, order, and dashboard placement. Add selected back to dashboard.</div>
               </div>
               <div class="flex flex-wrap gap-2">
                 <button id="btnUndo" class="btn rounded-lg px-3 py-2 text-sm font-semibold">Undo</button>
@@ -392,7 +414,6 @@
               <button class="subTabBtn btn rounded-lg px-3 py-2 text-sm font-semibold" data-sub="penalties">Penalties</button>
             </div>
 
-            <!-- Sliders Builder -->
             <div id="builders-sliders" class="mt-4">
               <div class="card rounded-xl p-4">
                 <div class="flex items-start justify-between gap-3">
@@ -426,7 +447,6 @@
               </div>
             </div>
 
-            <!-- Performance Builder -->
             <div id="builders-performance" class="mt-4 hidden">
               <div class="card rounded-xl p-4">
                 <div class="flex items-start justify-between gap-3">
@@ -460,7 +480,6 @@
               </div>
             </div>
 
-            <!-- Penalties Builder -->
             <div id="builders-penalties" class="mt-4 hidden">
               <div class="card rounded-xl p-4">
                 <div class="flex items-start justify-between gap-3">
@@ -490,6 +509,10 @@
                     <tbody id="penaltiesBuilderTable"></tbody>
                   </table>
                 </div>
+
+                <div class="mt-3 text-blue-200/70 text-xs">
+                  Alcohol and Stress are special segmented controls on Dashboard and are not listed here. This builder controls the penalty toggles.
+                </div>
               </div>
             </div>
 
@@ -502,7 +525,7 @@
             <div class="flex items-start justify-between gap-3">
               <div>
                 <div class="text-sky-200 text-lg font-semibold">Consistency Coach</div>
-                <div class="text-blue-200/70 text-sm">Recommends point adjustments based on saved entries.</div>
+                <div class="text-blue-200/70 text-sm">Suggests weight adjustments based on saved entries.</div>
               </div>
               <button id="btnApplyCoach" class="btn btn-primary rounded-lg px-3 py-2 text-sm font-semibold text-white">Apply Suggested Changes</button>
             </div>
@@ -515,8 +538,9 @@
               <div class="card rounded-xl p-3">
                 <div class="text-cyan-200 text-sm font-semibold">Notes</div>
                 <ul class="mt-2 list-disc pl-6 text-blue-200/80 text-sm space-y-2">
-                  <li>Apply changes only if Personalization Mode is enabled.</li>
-                  <li>Review Builders after applying changes.</li>
+                  <li>Enable Personalization Mode to apply suggestions.</li>
+                  <li>Coach is heuristic. Review Builders after applying.</li>
+                  <li>Undo is available in Builders.</li>
                 </ul>
               </div>
             </div>
@@ -527,7 +551,7 @@
     </main>
   </div>
 
-  <!-- Bottom Navigation (NEW, always visible) -->
+  <!-- Bottom Navigation -->
   <nav class="bottom-nav">
     <div class="mx-auto max-w-6xl px-3 py-2">
       <div class="flex gap-2 overflow-x-auto">
@@ -574,7 +598,7 @@
     </div>
   </div>
 
-  <!-- Confirm modal (NEW, used for Patch Set 2 confirmations) -->
+  <!-- Confirm modal -->
   <div id="confirmModal" class="fixed inset-0 hidden" style="background:rgba(0,0,0,0.55); z-index:60;">
     <div class="min-h-full flex items-center justify-center p-4">
       <div class="card rounded-2xl w-full max-w-lg p-4">
@@ -637,9 +661,9 @@
   const $ = (id) => document.getElementById(id);
 
   // ---------- Storage key ----------
-  const LS_KEY = "nuance_tracker_v2";
+  const LS_KEY = "nuance_tracker_v2_full";
 
-  // ---------- Confirm modal (Patch Set 2) ----------
+  // ---------- Confirm modal ----------
   let _confirmResolve = null;
   function openConfirm({ title="Confirm", body="Continue?", okText="Continue", danger=false }){
     $("confirmTitle").textContent = title;
@@ -815,7 +839,7 @@
     alert("Owner PIN updated.");
   });
 
-  // ---------- Base catalogs (defaults) ----------
+  // ---------- Defaults ----------
   function baseSliders(){
     return [
       { id:"fastingHours", name:"Fasting (11-24h)", type:"slider", completionType:"linear", min:11, max:24, step:0.5, perfWeight:24, recoveryWeight:8, impact:"both", onDashboard:true, order:1 },
@@ -893,7 +917,7 @@
     selected: { sliders:[], perf:[], pen:[] },
     builderSelected: { sliders:[], perf:[], pen:[] },
 
-    undoStack: [] // (basic snapshot for builders actions)
+    undoStack: []
   };
 
   const alcoholMap = { None:1.00, Low:0.95, Med:0.85, High:0.60 };
@@ -975,7 +999,6 @@
     return clamp((v - min) / (max - min), 0, 1);
   }
 
-  // Recovery categories
   function isRecoveryCredit(id){
     return ["sleepHours","steps","stretching","omega3","protein","lowCarb","suppStack","sunlight"].includes(id);
   }
@@ -995,7 +1018,7 @@
   datePicker.max = isoDate(maxDate);
   datePicker.value = state.date;
 
-  // ---------- Navigation (Patch Set 1) ----------
+  // ---------- Navigation ----------
   const deck = $("tabDeck");
 
   document.querySelectorAll(".tabBtn").forEach(btn=>{
@@ -1030,7 +1053,6 @@
     if (tab === "builders") renderBuilders();
   }
 
-  // Builders subtabs
   function setBuildersSub(sub){
     state.buildersSub = sub;
     document.querySelectorAll(".subTabBtn").forEach(b=>{
@@ -1051,7 +1073,7 @@
   renderTabLocks();
   setDeckIndex(state.tabIndex || 0);
 
-  // ---------- Mode buttons (Patch Set 2: confirm) ----------
+  // ---------- Mode buttons ----------
   document.querySelectorAll(".modeBtn").forEach(btn=>{
     btn.addEventListener("click", async ()=>{
       const nextMode = btn.dataset.mode;
@@ -1077,7 +1099,7 @@
     });
   }
 
-  // Personalization Mode (no confirmation in this patch set)
+  // Personalization Mode
   $("btnPersonalize").addEventListener("click", ()=>{
     state.personalizationMode = !state.personalizationMode;
     $("btnPersonalize").textContent = state.personalizationMode ? "On" : "Off";
@@ -1089,7 +1111,7 @@
     renderDashboard();
   });
 
-  // Disable drift triggers (Patch Set 2: confirm)
+  // Disable drift triggers
   $("btnDisableDrift").addEventListener("click", async ()=>{
     const next = !state.disableDriftTriggers;
     if (next){
@@ -1186,7 +1208,7 @@
     if (state.tab === "coach") updateCoach();
   });
 
-  // Clear History (Patch Set 2: confirm + empty check)
+  // Clear History
   $("btnClearHistory").addEventListener("click", async ()=>{
     const hasAny = !!Object.keys(state.history || {}).length;
     if (!hasAny){
@@ -1208,7 +1230,7 @@
     if (state.tab === "coach") updateCoach();
   });
 
-  // ---------- Move/Add actions (Patch Set 2: confirm + personalization requirement) ----------
+  // ---------- Undo ----------
   function snapshotForUndo(){
     state.undoStack.push({
       catalogs: structuredClone(state.catalogs),
@@ -1230,6 +1252,8 @@
     saveState();
     renderDashboard();
     renderBuilders();
+    if (state.tab === "coach") updateCoach();
+    if (state.tab === "analytics") updateAnalytics(currentPeriodDays);
   });
 
   async function requirePersonalizationOrExplain(){
@@ -1242,6 +1266,7 @@
     return false;
   }
 
+  // ---------- Move to Builders (Dashboard -> Builders) ----------
   $("btnMoveSliders").addEventListener("click", async ()=>{
     if (!(await requirePersonalizationOrExplain())) return;
     if (!state.selected.sliders.size){ alert("No sliders selected."); return; }
@@ -1308,6 +1333,7 @@
     renderBuilders();
   });
 
+  // ---------- Add to Dashboard (Builders -> Dashboard) ----------
   async function addSelectedToDashboard(kind){
     if (!(await requirePersonalizationOrExplain())) return;
 
@@ -1319,7 +1345,6 @@
     const cfg = map[kind];
     if (!cfg.set.size){ alert(`No ${cfg.label.toLowerCase()} selected.`); return; }
 
-    // duplicates check
     const duplicates = [];
     cfg.set.forEach(id=>{
       const item = cfg.list.find(x=>x.id===id);
@@ -1327,7 +1352,7 @@
     });
 
     const body = duplicates.length
-      ? `Some selected items are already on the Dashboard and will be skipped:\n${duplicates.slice(0,6).join(", ")}${duplicates.length>6?"...":""}\n\nContinue adding the rest?`
+      ? `Some selected items are already on the Dashboard and will be skipped: ${duplicates.slice(0,6).join(", ")}${duplicates.length>6?"...":""}. Continue adding the rest?`
       : `This adds selected ${cfg.label.toLowerCase()} to the Dashboard. Continue?`;
 
     const ok = await openConfirm({
@@ -1390,22 +1415,47 @@
   });
 
   // ---------- Dashboard rendering ----------
+  // Critical fix: In Personalization Mode, keep toggles and segments clickable to allow selection and moving.
+  // Scoring stays frozen via recalcIfAllowed().
   function setInputsEnabled(enabled){
     const dash = $("tab-dashboard");
     const controls = dash.querySelectorAll("input,button.segAlcohol,button.segStress,.toggleBtn,.sliderEl");
+
     controls.forEach(el=>{
-      const isPersonalizeButton = el.id === "btnPersonalize" || el.id === "btnDisableDrift" || el.id === "btnSave" || el.id === "btnClearHistory";
-      const isMoveButton = el.id === "btnMoveSliders" || el.id === "btnMovePerformance" || el.id === "btnMovePenalties";
-      const isDate = el.id === "datePicker";
+      const isAlwaysAllowed =
+        el.id === "btnPersonalize" ||
+        el.id === "btnDisableDrift" ||
+        el.id === "btnSave" ||
+        el.id === "btnClearHistory" ||
+        el.id === "datePicker" ||
+        el.id === "btnMoveSliders" ||
+        el.id === "btnMovePerformance" ||
+        el.id === "btnMovePenalties";
+
+      const isSelectableDashboardControl =
+        el.classList.contains("toggleBtn") ||
+        el.classList.contains("sliderEl") ||
+        el.classList.contains("segAlcohol") ||
+        el.classList.contains("segStress");
+
       if (!enabled){
-        if (isPersonalizeButton || isMoveButton || isDate) return;
+        if (isAlwaysAllowed) return;
+
+        if (isSelectableDashboardControl){
+          el.removeAttribute("disabled");
+          el.classList.remove("disabled");
+          return;
+        }
+
         el.setAttribute("disabled","disabled");
         el.classList.add("disabled");
-      } else {
-        el.removeAttribute("disabled");
-        el.classList.remove("disabled");
+        return;
       }
+
+      el.removeAttribute("disabled");
+      el.classList.remove("disabled");
     });
+
     $("btnMoveSliders").classList.toggle("btn-primary", state.personalizationMode);
     $("btnMovePerformance").classList.toggle("btn-primary", state.personalizationMode);
     $("btnMovePenalties").classList.toggle("btn-primary", state.personalizationMode);
@@ -1422,7 +1472,9 @@
     $("btnPersonalize").classList.toggle("btn-primary", state.personalizationMode);
     $("btnDisableDrift").textContent = state.disableDriftTriggers ? "On" : "Off";
     $("btnDisableDrift").classList.toggle("btn-primary", state.disableDriftTriggers);
+
     setInputsEnabled(!state.personalizationMode);
+
     renderHistoryTable();
     recalcIfAllowed();
   }
@@ -1742,272 +1794,540 @@
     renderPenaltiesBuilder();
   }
 
+  function toggleBuilderSelection(kind, id){
+    const set = state.builderSelected[kind];
+    if (set.has(id)) set.delete(id);
+    else set.add(id);
+    saveState();
+    renderBuilders();
+  }
+
+  function makeImpactSelect(current, onChange){
+    const sel = document.createElement("select");
+    sel.className = "table-input table-input-wide";
+    ["both","performance","recovery"].forEach(v=>{
+      const opt = document.createElement("option");
+      opt.value = v;
+      opt.textContent = v;
+      if (v === (current || "both")) opt.selected = true;
+      sel.appendChild(opt);
+    });
+    sel.addEventListener("change", ()=>onChange(sel.value));
+    return sel;
+  }
+
+  function makeDashboardToggle(current, onChange){
+    const sel = document.createElement("select");
+    sel.className = "table-input";
+    ["true","false"].forEach(v=>{
+      const opt = document.createElement("option");
+      opt.value = v;
+      opt.textContent = v === "true" ? "Yes" : "No";
+      if ((current ? "true" : "false") === v) opt.selected = true;
+      sel.appendChild(opt);
+    });
+    sel.addEventListener("change", ()=>onChange(sel.value === "true"));
+    return sel;
+  }
+
+  function makeRowActions({ onUp, onDown, onDelete }){
+    const wrap = document.createElement("div");
+    wrap.className = "flex justify-end gap-2";
+    const up = document.createElement("button");
+    up.className = "mini-btn";
+    up.textContent = "Up";
+    up.addEventListener("click", onUp);
+
+    const down = document.createElement("button");
+    down.className = "mini-btn";
+    down.textContent = "Down";
+    down.addEventListener("click", onDown);
+
+    const del = document.createElement("button");
+    del.className = "mini-btn mini-danger";
+    del.textContent = "Delete";
+    del.addEventListener("click", onDelete);
+
+    wrap.appendChild(up);
+    wrap.appendChild(down);
+    wrap.appendChild(del);
+    return wrap;
+  }
+
+  function swapOrder(list, idxA, idxB){
+    if (idxA < 0 || idxB < 0 || idxA >= list.length || idxB >= list.length) return;
+    const a = list[idxA];
+    const b = list[idxB];
+    const ao = Number(a.order || 0);
+    const bo = Number(b.order || 0);
+    a.order = bo;
+    b.order = ao;
+  }
+
   function renderSliderBuilder(){
     const tbody = $("sliderBuilderTable");
     tbody.innerHTML = "";
-    const rows = state.catalogs.sliders.slice().sort(byOrder);
-    rows.forEach((item, idx)=>{
+    const items = state.catalogs.sliders.slice().sort(byOrder);
+
+    items.forEach((item, idxSorted)=>{
       const selected = state.builderSelected.sliders.has(item.id);
+
       const tr = document.createElement("tr");
       tr.className = "border-t border-[#143457]";
-      tr.innerHTML = `
-        <td class="py-2 pr-2"><input type="checkbox" ${selected ? "checked":""} data-id="${item.id}" class="selSlider" /></td>
-        <td class="py-2 px-2 mono">${idx+1}</td>
-        <td class="py-2 px-2 text-sky-200 font-semibold">${escapeHtml(item.name)}</td>
-        <td class="py-2 px-2 text-right mono">${item.perfWeight}</td>
-        <td class="py-2 px-2 text-right mono">${item.recoveryWeight}</td>
-        <td class="py-2 px-2">${escapeHtml(item.impact)}</td>
-        <td class="py-2 px-2">${item.onDashboard ? "Yes" : "No"}</td>
-        <td class="py-2 pl-2 text-right">
-          <button class="btn rounded-lg px-2 py-1 text-xs font-semibold editSlider" data-id="${item.id}">Modify</button>
-          <button class="btn btn-danger rounded-lg px-2 py-1 text-xs font-semibold delSlider" data-id="${item.id}">Delete</button>
-        </td>
-      `;
-      tbody.appendChild(tr);
-    });
 
-    tbody.querySelectorAll(".selSlider").forEach(cb=>{
-      cb.addEventListener("change", ()=>{
-        const id = cb.dataset.id;
-        if (cb.checked) state.builderSelected.sliders.add(id);
-        else state.builderSelected.sliders.delete(id);
-        saveState();
-      });
-    });
+      const tdSel = document.createElement("td");
+      tdSel.className = "py-2 pr-2";
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.checked = selected;
+      cb.addEventListener("change", ()=>toggleBuilderSelection("sliders", item.id));
+      tdSel.appendChild(cb);
 
-    tbody.querySelectorAll(".editSlider").forEach(btn=>{
-      btn.addEventListener("click", ()=>{
+      const tdOrder = document.createElement("td");
+      tdOrder.className = "py-2 px-2";
+      const inOrder = document.createElement("input");
+      inOrder.type = "number";
+      inOrder.className = "table-input";
+      inOrder.value = Number(item.order || 0);
+      inOrder.addEventListener("change", ()=>{
         snapshotForUndo();
-        const id = btn.dataset.id;
-        const item = state.catalogs.sliders.find(x=>x.id===id);
-        if (!item) return;
+        item.order = Number(inOrder.value || 0);
+        saveState();
+        renderBuilders();
+        renderDashboard();
+      });
+      tdOrder.appendChild(inOrder);
 
-        const newName = prompt("Name:", item.name);
-        if (newName) item.name = newName;
+      const tdName = document.createElement("td");
+      tdName.className = "py-2 px-2";
+      const inName = document.createElement("input");
+      inName.type = "text";
+      inName.className = "table-input table-input-wide";
+      inName.value = item.name || "";
+      inName.addEventListener("change", ()=>{
+        snapshotForUndo();
+        item.name = inName.value || item.name;
+        saveState();
+        renderBuilders();
+        renderDashboard();
+      });
+      tdName.appendChild(inName);
 
-        const pw = prompt("Performance weight:", String(item.perfWeight));
-        if (pw !== null && pw !== "") item.perfWeight = Number(pw) || item.perfWeight;
+      const tdPW = document.createElement("td");
+      tdPW.className = "py-2 px-2 text-right";
+      const inPW = document.createElement("input");
+      inPW.type = "number";
+      inPW.className = "table-input";
+      inPW.value = Number(item.perfWeight || 0);
+      inPW.addEventListener("change", ()=>{
+        snapshotForUndo();
+        item.perfWeight = Number(inPW.value || 0);
+        saveState();
+        renderBuilders();
+        if (!state.personalizationMode) recalcIfAllowed();
+      });
+      tdPW.appendChild(inPW);
 
-        const rw = prompt("Recovery weight:", String(item.recoveryWeight));
-        if (rw !== null && rw !== "") item.recoveryWeight = Number(rw) || item.recoveryWeight;
+      const tdRW = document.createElement("td");
+      tdRW.className = "py-2 px-2 text-right";
+      const inRW = document.createElement("input");
+      inRW.type = "number";
+      inRW.className = "table-input";
+      inRW.value = Number(item.recoveryWeight || 0);
+      inRW.addEventListener("change", ()=>{
+        snapshotForUndo();
+        item.recoveryWeight = Number(inRW.value || 0);
+        saveState();
+        renderBuilders();
+        if (!state.personalizationMode) recalcIfAllowed();
+      });
+      tdRW.appendChild(inRW);
 
-        const impact = prompt("Impact: performance, recovery, both", item.impact);
-        if (impact && ["performance","recovery","both"].includes(impact)) item.impact = impact;
+      const tdImpact = document.createElement("td");
+      tdImpact.className = "py-2 px-2";
+      tdImpact.appendChild(makeImpactSelect(item.impact, (val)=>{
+        snapshotForUndo();
+        item.impact = val;
+        saveState();
+        renderBuilders();
+        if (!state.personalizationMode) recalcIfAllowed();
+      }));
 
-        const mm = prompt("Min,Max,Step as three comma values:", `${item.min},${item.max},${item.step}`);
-        if (mm){
-          const parts = mm.split(",").map(x=>x.trim());
-          if (parts.length === 3){
-            const a = Number(parts[0]), b = Number(parts[1]), c = Number(parts[2]);
-            if (Number.isFinite(a) && Number.isFinite(b) && Number.isFinite(c) && b > a && c > 0){
-              item.min = a; item.max = b; item.step = c;
-              if (item.completionType !== "sleepCredit") item.completionType = "linear";
-              state.sliderValues[item.id] = clamp(Number(state.sliderValues[item.id] ?? a), a, b);
-            }
-          }
+      const tdDash = document.createElement("td");
+      tdDash.className = "py-2 px-2";
+      tdDash.appendChild(makeDashboardToggle(!!item.onDashboard, (val)=>{
+        snapshotForUndo();
+        item.onDashboard = val;
+        saveState();
+        renderDashboard();
+        renderBuilders();
+      }));
+
+      const tdAct = document.createElement("td");
+      tdAct.className = "py-2 pl-2";
+      tdAct.appendChild(makeRowActions({
+        onUp: ()=>{
+          snapshotForUndo();
+          const sorted = state.catalogs.sliders.slice().sort(byOrder);
+          const pos = sorted.findIndex(x=>x.id===item.id);
+          if (pos <= 0) return;
+          const prevId = sorted[pos-1].id;
+          const aIdx = state.catalogs.sliders.findIndex(x=>x.id===item.id);
+          const bIdx = state.catalogs.sliders.findIndex(x=>x.id===prevId);
+          swapOrder(state.catalogs.sliders, aIdx, bIdx);
+          saveState();
+          renderBuilders();
+          renderDashboard();
+        },
+        onDown: ()=>{
+          snapshotForUndo();
+          const sorted = state.catalogs.sliders.slice().sort(byOrder);
+          const pos = sorted.findIndex(x=>x.id===item.id);
+          if (pos < 0 || pos >= sorted.length-1) return;
+          const nextId = sorted[pos+1].id;
+          const aIdx = state.catalogs.sliders.findIndex(x=>x.id===item.id);
+          const bIdx = state.catalogs.sliders.findIndex(x=>x.id===nextId);
+          swapOrder(state.catalogs.sliders, aIdx, bIdx);
+          saveState();
+          renderBuilders();
+          renderDashboard();
+        },
+        onDelete: async ()=>{
+          const ok = await openConfirm({
+            title:"Delete Slider Item",
+            body:`Delete “${item.name}”? This cannot be undone except via Undo.`,
+            okText:"Delete",
+            danger:true
+          });
+          if (!ok) return;
+          snapshotForUndo();
+          state.catalogs.sliders = state.catalogs.sliders.filter(x=>x.id!==item.id);
+          delete state.sliderValues[item.id];
+          state.builderSelected.sliders.delete(item.id);
+          state.selected.sliders.delete(item.id);
+          saveState();
+          renderBuilders();
+          renderDashboard();
         }
-        saveState();
-        renderBuilders();
-        renderDashboard();
-      });
-    });
+      }));
 
-    tbody.querySelectorAll(".delSlider").forEach(btn=>{
-      btn.addEventListener("click", async ()=>{
-        const id = btn.dataset.id;
-        const protectedIds = new Set(baseSliders().map(x=>x.id));
-        if (protectedIds.has(id)) { alert("Core sliders cannot be deleted."); return; }
+      tr.appendChild(tdSel);
+      tr.appendChild(tdOrder);
+      tr.appendChild(tdName);
+      tr.appendChild(tdPW);
+      tr.appendChild(tdRW);
+      tr.appendChild(tdImpact);
+      tr.appendChild(tdDash);
+      tr.appendChild(tdAct);
 
-        const ok = await openConfirm({
-          title:"Delete Slider",
-          body:"This permanently deletes the slider from your catalog. Continue?",
-          okText:"Delete",
-          danger:true
-        });
-        if (!ok) return;
-
-        snapshotForUndo();
-        const idx = state.catalogs.sliders.findIndex(x=>x.id===id);
-        if (idx < 0) return;
-        state.catalogs.sliders.splice(idx,1);
-        delete state.sliderValues[id];
-        state.builderSelected.sliders.delete(id);
-        state.selected.sliders.delete(id);
-        saveState();
-        renderBuilders();
-        renderDashboard();
-      });
+      tbody.appendChild(tr);
     });
   }
 
   function renderPerformanceBuilder(){
     const tbody = $("performanceBuilderTable");
     tbody.innerHTML = "";
-    const rows = state.catalogs.perf.slice().sort(byOrder);
-    rows.forEach((item, idx)=>{
+    const items = state.catalogs.perf.slice().sort(byOrder);
+
+    items.forEach((item)=>{
       const selected = state.builderSelected.perf.has(item.id);
+
       const tr = document.createElement("tr");
       tr.className = "border-t border-[#143457]";
-      tr.innerHTML = `
-        <td class="py-2 pr-2"><input type="checkbox" ${selected ? "checked":""} data-id="${item.id}" class="selPerf" /></td>
-        <td class="py-2 px-2 mono">${idx+1}</td>
-        <td class="py-2 px-2 text-sky-200 font-semibold">${escapeHtml(item.name)}</td>
-        <td class="py-2 px-2 text-right mono">${item.perfWeight}</td>
-        <td class="py-2 px-2 text-right mono">${item.recoveryWeight}</td>
-        <td class="py-2 px-2">${escapeHtml(item.impact)}</td>
-        <td class="py-2 px-2">${item.onDashboard ? "Yes" : "No"}</td>
-        <td class="py-2 pl-2 text-right">
-          <button class="btn rounded-lg px-2 py-1 text-xs font-semibold editPerf" data-id="${item.id}">Modify</button>
-          <button class="btn btn-danger rounded-lg px-2 py-1 text-xs font-semibold delPerf" data-id="${item.id}">Delete</button>
-        </td>
-      `;
+
+      const tdSel = document.createElement("td");
+      tdSel.className = "py-2 pr-2";
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.checked = selected;
+      cb.addEventListener("change", ()=>toggleBuilderSelection("perf", item.id));
+      tdSel.appendChild(cb);
+
+      const tdOrder = document.createElement("td");
+      tdOrder.className = "py-2 px-2";
+      const inOrder = document.createElement("input");
+      inOrder.type = "number";
+      inOrder.className = "table-input";
+      inOrder.value = Number(item.order || 0);
+      inOrder.addEventListener("change", ()=>{
+        snapshotForUndo();
+        item.order = Number(inOrder.value || 0);
+        saveState();
+        renderBuilders();
+        renderDashboard();
+      });
+      tdOrder.appendChild(inOrder);
+
+      const tdName = document.createElement("td");
+      tdName.className = "py-2 px-2";
+      const inName = document.createElement("input");
+      inName.type = "text";
+      inName.className = "table-input table-input-wide";
+      inName.value = item.name || "";
+      inName.addEventListener("change", ()=>{
+        snapshotForUndo();
+        item.name = inName.value || item.name;
+        saveState();
+        renderBuilders();
+        renderDashboard();
+      });
+      tdName.appendChild(inName);
+
+      const tdPW = document.createElement("td");
+      tdPW.className = "py-2 px-2 text-right";
+      const inPW = document.createElement("input");
+      inPW.type = "number";
+      inPW.className = "table-input";
+      inPW.value = Number(item.perfWeight || 0);
+      inPW.addEventListener("change", ()=>{
+        snapshotForUndo();
+        item.perfWeight = Number(inPW.value || 0);
+        saveState();
+        renderBuilders();
+        if (!state.personalizationMode) recalcIfAllowed();
+      });
+      tdPW.appendChild(inPW);
+
+      const tdRW = document.createElement("td");
+      tdRW.className = "py-2 px-2 text-right";
+      const inRW = document.createElement("input");
+      inRW.type = "number";
+      inRW.className = "table-input";
+      inRW.value = Number(item.recoveryWeight || 0);
+      inRW.addEventListener("change", ()=>{
+        snapshotForUndo();
+        item.recoveryWeight = Number(inRW.value || 0);
+        saveState();
+        renderBuilders();
+        if (!state.personalizationMode) recalcIfAllowed();
+      });
+      tdRW.appendChild(inRW);
+
+      const tdImpact = document.createElement("td");
+      tdImpact.className = "py-2 px-2";
+      tdImpact.appendChild(makeImpactSelect(item.impact, (val)=>{
+        snapshotForUndo();
+        item.impact = val;
+        saveState();
+        renderBuilders();
+        if (!state.personalizationMode) recalcIfAllowed();
+      }));
+
+      const tdDash = document.createElement("td");
+      tdDash.className = "py-2 px-2";
+      tdDash.appendChild(makeDashboardToggle(!!item.onDashboard, (val)=>{
+        snapshotForUndo();
+        item.onDashboard = val;
+        saveState();
+        renderDashboard();
+        renderBuilders();
+      }));
+
+      const tdAct = document.createElement("td");
+      tdAct.className = "py-2 pl-2";
+      tdAct.appendChild(makeRowActions({
+        onUp: ()=>{
+          snapshotForUndo();
+          const sorted = state.catalogs.perf.slice().sort(byOrder);
+          const pos = sorted.findIndex(x=>x.id===item.id);
+          if (pos <= 0) return;
+          const prevId = sorted[pos-1].id;
+          const aIdx = state.catalogs.perf.findIndex(x=>x.id===item.id);
+          const bIdx = state.catalogs.perf.findIndex(x=>x.id===prevId);
+          swapOrder(state.catalogs.perf, aIdx, bIdx);
+          saveState();
+          renderBuilders();
+          renderDashboard();
+        },
+        onDown: ()=>{
+          snapshotForUndo();
+          const sorted = state.catalogs.perf.slice().sort(byOrder);
+          const pos = sorted.findIndex(x=>x.id===item.id);
+          if (pos < 0 || pos >= sorted.length-1) return;
+          const nextId = sorted[pos+1].id;
+          const aIdx = state.catalogs.perf.findIndex(x=>x.id===item.id);
+          const bIdx = state.catalogs.perf.findIndex(x=>x.id===nextId);
+          swapOrder(state.catalogs.perf, aIdx, bIdx);
+          saveState();
+          renderBuilders();
+          renderDashboard();
+        },
+        onDelete: async ()=>{
+          const ok = await openConfirm({
+            title:"Delete Performance Item",
+            body:`Delete “${item.name}”? This cannot be undone except via Undo.`,
+            okText:"Delete",
+            danger:true
+          });
+          if (!ok) return;
+          snapshotForUndo();
+          state.catalogs.perf = state.catalogs.perf.filter(x=>x.id!==item.id);
+          delete state.toggles[item.id];
+          state.builderSelected.perf.delete(item.id);
+          state.selected.perf.delete(item.id);
+          saveState();
+          renderBuilders();
+          renderDashboard();
+        }
+      }));
+
+      tr.appendChild(tdSel);
+      tr.appendChild(tdOrder);
+      tr.appendChild(tdName);
+      tr.appendChild(tdPW);
+      tr.appendChild(tdRW);
+      tr.appendChild(tdImpact);
+      tr.appendChild(tdDash);
+      tr.appendChild(tdAct);
+
       tbody.appendChild(tr);
-    });
-
-    tbody.querySelectorAll(".selPerf").forEach(cb=>{
-      cb.addEventListener("change", ()=>{
-        const id = cb.dataset.id;
-        if (cb.checked) state.builderSelected.perf.add(id);
-        else state.builderSelected.perf.delete(id);
-        saveState();
-      });
-    });
-
-    tbody.querySelectorAll(".editPerf").forEach(btn=>{
-      btn.addEventListener("click", ()=>{
-        snapshotForUndo();
-        const id = btn.dataset.id;
-        const item = state.catalogs.perf.find(x=>x.id===id);
-        if (!item) return;
-
-        const newName = prompt("Name:", item.name);
-        if (newName) item.name = newName;
-
-        const pw = prompt("Performance weight:", String(item.perfWeight));
-        if (pw !== null && pw !== "") item.perfWeight = Number(pw) || item.perfWeight;
-
-        const rw = prompt("Recovery weight:", String(item.recoveryWeight));
-        if (rw !== null && rw !== "") item.recoveryWeight = Number(rw) || item.recoveryWeight;
-
-        const impact = prompt("Impact: performance, recovery, both", item.impact);
-        if (impact && ["performance","recovery","both"].includes(impact)) item.impact = impact;
-
-        saveState();
-        renderBuilders();
-        renderDashboard();
-      });
-    });
-
-    tbody.querySelectorAll(".delPerf").forEach(btn=>{
-      btn.addEventListener("click", async ()=>{
-        const id = btn.dataset.id;
-        const protectedIds = new Set(basePerfToggles().map(x=>x.id));
-        if (protectedIds.has(id)) { alert("Core performance indicators cannot be deleted."); return; }
-
-        const ok = await openConfirm({
-          title:"Delete Performance Item",
-          body:"This permanently deletes the item from your catalog. Continue?",
-          okText:"Delete",
-          danger:true
-        });
-        if (!ok) return;
-
-        snapshotForUndo();
-        const idx = state.catalogs.perf.findIndex(x=>x.id===id);
-        if (idx < 0) return;
-        state.catalogs.perf.splice(idx,1);
-        delete state.toggles[id];
-        state.builderSelected.perf.delete(id);
-        state.selected.perf.delete(id);
-        saveState();
-        renderBuilders();
-        renderDashboard();
-      });
     });
   }
 
   function renderPenaltiesBuilder(){
     const tbody = $("penaltiesBuilderTable");
     tbody.innerHTML = "";
-    const rows = state.catalogs.pen.slice().sort(byOrder);
-    rows.forEach((item, idx)=>{
+    const items = state.catalogs.pen.slice().sort(byOrder);
+
+    items.forEach((item)=>{
       const selected = state.builderSelected.pen.has(item.id);
+
       const tr = document.createElement("tr");
       tr.className = "border-t border-[#143457]";
-      tr.innerHTML = `
-        <td class="py-2 pr-2"><input type="checkbox" ${selected ? "checked":""} data-id="${item.id}" class="selPen" /></td>
-        <td class="py-2 px-2 mono">${idx+1}</td>
-        <td class="py-2 px-2 text-sky-200 font-semibold">${escapeHtml(item.name)}</td>
-        <td class="py-2 px-2 text-right mono">${Number(item.multiplier).toFixed(2)}</td>
-        <td class="py-2 px-2">${escapeHtml(item.impact)}</td>
-        <td class="py-2 px-2">${item.onDashboard ? "Yes" : "No"}</td>
-        <td class="py-2 pl-2 text-right">
-          <button class="btn rounded-lg px-2 py-1 text-xs font-semibold editPen" data-id="${item.id}">Modify</button>
-          <button class="btn btn-danger rounded-lg px-2 py-1 text-xs font-semibold delPen" data-id="${item.id}">Delete</button>
-        </td>
-      `;
-      tbody.appendChild(tr);
-    });
 
-    tbody.querySelectorAll(".selPen").forEach(cb=>{
-      cb.addEventListener("change", ()=>{
-        const id = cb.dataset.id;
-        if (cb.checked) state.builderSelected.pen.add(id);
-        else state.builderSelected.pen.delete(id);
-        saveState();
-      });
-    });
+      const tdSel = document.createElement("td");
+      tdSel.className = "py-2 pr-2";
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.checked = selected;
+      cb.addEventListener("change", ()=>toggleBuilderSelection("pen", item.id));
+      tdSel.appendChild(cb);
 
-    tbody.querySelectorAll(".editPen").forEach(btn=>{
-      btn.addEventListener("click", ()=>{
+      const tdOrder = document.createElement("td");
+      tdOrder.className = "py-2 px-2";
+      const inOrder = document.createElement("input");
+      inOrder.type = "number";
+      inOrder.className = "table-input";
+      inOrder.value = Number(item.order || 0);
+      inOrder.addEventListener("change", ()=>{
         snapshotForUndo();
-        const id = btn.dataset.id;
-        const item = state.catalogs.pen.find(x=>x.id===id);
-        if (!item) return;
+        item.order = Number(inOrder.value || 0);
+        saveState();
+        renderBuilders();
+        renderDashboard();
+      });
+      tdOrder.appendChild(inOrder);
 
-        const newName = prompt("Name:", item.name);
-        if (newName) item.name = newName;
+      const tdName = document.createElement("td");
+      tdName.className = "py-2 px-2";
+      const inName = document.createElement("input");
+      inName.type = "text";
+      inName.className = "table-input table-input-wide";
+      inName.value = item.name || "";
+      inName.addEventListener("change", ()=>{
+        snapshotForUndo();
+        item.name = inName.value || item.name;
+        saveState();
+        renderBuilders();
+        renderDashboard();
+      });
+      tdName.appendChild(inName);
 
-        const m = prompt("Multiplier (0.0-1.0):", String(item.multiplier));
-        if (m !== null && m !== ""){
-          const mv = Number(m);
-          if (Number.isFinite(mv) && mv > 0 && mv <= 1) item.multiplier = mv;
+      const tdMult = document.createElement("td");
+      tdMult.className = "py-2 px-2 text-right";
+      const inM = document.createElement("input");
+      inM.type = "number";
+      inM.step = "0.01";
+      inM.min = "0";
+      inM.max = "1";
+      inM.className = "table-input";
+      inM.value = Number(item.multiplier || 1).toFixed(2);
+      inM.addEventListener("change", ()=>{
+        snapshotForUndo();
+        item.multiplier = clamp(Number(inM.value || 1), 0, 1);
+        saveState();
+        renderBuilders();
+        if (!state.personalizationMode) recalcIfAllowed();
+      });
+      tdMult.appendChild(inM);
+
+      const tdImpact = document.createElement("td");
+      tdImpact.className = "py-2 px-2";
+      tdImpact.appendChild(makeImpactSelect(item.impact, (val)=>{
+        snapshotForUndo();
+        item.impact = val;
+        saveState();
+        renderBuilders();
+        if (!state.personalizationMode) recalcIfAllowed();
+      }));
+
+      const tdDash = document.createElement("td");
+      tdDash.className = "py-2 px-2";
+      tdDash.appendChild(makeDashboardToggle(!!item.onDashboard, (val)=>{
+        snapshotForUndo();
+        item.onDashboard = val;
+        saveState();
+        renderDashboard();
+        renderBuilders();
+      }));
+
+      const tdAct = document.createElement("td");
+      tdAct.className = "py-2 pl-2";
+      tdAct.appendChild(makeRowActions({
+        onUp: ()=>{
+          snapshotForUndo();
+          const sorted = state.catalogs.pen.slice().sort(byOrder);
+          const pos = sorted.findIndex(x=>x.id===item.id);
+          if (pos <= 0) return;
+          const prevId = sorted[pos-1].id;
+          const aIdx = state.catalogs.pen.findIndex(x=>x.id===item.id);
+          const bIdx = state.catalogs.pen.findIndex(x=>x.id===prevId);
+          swapOrder(state.catalogs.pen, aIdx, bIdx);
+          saveState();
+          renderBuilders();
+          renderDashboard();
+        },
+        onDown: ()=>{
+          snapshotForUndo();
+          const sorted = state.catalogs.pen.slice().sort(byOrder);
+          const pos = sorted.findIndex(x=>x.id===item.id);
+          if (pos < 0 || pos >= sorted.length-1) return;
+          const nextId = sorted[pos+1].id;
+          const aIdx = state.catalogs.pen.findIndex(x=>x.id===item.id);
+          const bIdx = state.catalogs.pen.findIndex(x=>x.id===nextId);
+          swapOrder(state.catalogs.pen, aIdx, bIdx);
+          saveState();
+          renderBuilders();
+          renderDashboard();
+        },
+        onDelete: async ()=>{
+          const ok = await openConfirm({
+            title:"Delete Penalty Item",
+            body:`Delete “${item.name}”? This cannot be undone except via Undo.`,
+            okText:"Delete",
+            danger:true
+          });
+          if (!ok) return;
+          snapshotForUndo();
+          state.catalogs.pen = state.catalogs.pen.filter(x=>x.id!==item.id);
+          delete state.penalties[item.id];
+          state.builderSelected.pen.delete(item.id);
+          state.selected.pen.delete(item.id);
+          saveState();
+          renderBuilders();
+          renderDashboard();
         }
+      }));
 
-        const impact = prompt("Impact: performance, recovery, both", item.impact);
-        if (impact && ["performance","recovery","both"].includes(impact)) item.impact = impact;
+      tr.appendChild(tdSel);
+      tr.appendChild(tdOrder);
+      tr.appendChild(tdName);
+      tr.appendChild(tdMult);
+      tr.appendChild(tdImpact);
+      tr.appendChild(tdDash);
+      tr.appendChild(tdAct);
 
-        saveState();
-        renderBuilders();
-        renderDashboard();
-      });
-    });
-
-    tbody.querySelectorAll(".delPen").forEach(btn=>{
-      btn.addEventListener("click", async ()=>{
-        const id = btn.dataset.id;
-        const protectedIds = new Set(basePenalties().map(x=>x.id));
-        if (protectedIds.has(id)) { alert("Core penalties cannot be deleted."); return; }
-
-        const ok = await openConfirm({
-          title:"Delete Penalty",
-          body:"This permanently deletes the penalty from your catalog. Continue?",
-          okText:"Delete",
-          danger:true
-        });
-        if (!ok) return;
-
-        snapshotForUndo();
-        const idx = state.catalogs.pen.findIndex(x=>x.id===id);
-        if (idx < 0) return;
-        state.catalogs.pen.splice(idx,1);
-        delete state.penalties[id];
-        state.builderSelected.pen.delete(id);
-        state.selected.pen.delete(id);
-        saveState();
-        renderBuilders();
-        renderDashboard();
-      });
+      tbody.appendChild(tr);
     });
   }
 
@@ -2021,220 +2341,367 @@
     });
   });
 
+  function parseISODateToLocal(d){
+    const [y,m,dd] = d.split("-").map(Number);
+    return new Date(y, m-1, dd);
+  }
+
+  function withinDays(dateISO, endISO, days){
+    const d = parseISODateToLocal(dateISO);
+    const end = parseISODateToLocal(endISO);
+    const ms = end.getTime() - d.getTime();
+    const diffDays = ms / (1000*60*60*24);
+    return diffDays >= 0 && diffDays <= days-1;
+  }
+
   function updateAnalytics(days=7){
-    const arr = getHistoryArray();
-    const end = new Date(state.date);
-    const start = new Date(end);
-    start.setDate(start.getDate() - (days - 1));
-    const filtered = arr.filter(e=>{
-      const d = new Date(e.date + "T00:00:00");
-      return d >= start && d <= end;
-    });
+    const endISO = state.date || isoDate(new Date());
+    const all = getHistoryArray();
+    const filtered = all.filter(e=>withinDays(e.date, endISO, days));
 
-    const avg = (xs)=> xs.length ? xs.reduce((a,x)=>a+x,0)/xs.length : 0;
-    const aPerf = avg(filtered.map(e=>e.score));
-    const aRec = avg(filtered.map(e=>e.recovery));
-    const driftRate = filtered.length ? (filtered.filter(e=>e.status==="DRIFT").length / filtered.length) : 0;
+    const avg = (key)=>{
+      if (!filtered.length) return 0;
+      const sum = filtered.reduce((a,x)=>a + Number(x[key]||0), 0);
+      return sum / filtered.length;
+    };
 
-    $("aPerf").textContent = round1(aPerf).toFixed(1);
-    $("aRec").textContent = round1(aRec).toFixed(1);
-    $("aDrift").textContent = Math.round(driftRate * 100) + "%";
+    const driftCount = filtered.filter(e=>String(e.status||"") === "DRIFT").length;
+    const driftRate = filtered.length ? (driftCount / filtered.length) : 0;
 
-    const streaks = computeStreaks(filtered, end);
+    $("aPerf").textContent = round1(avg("score")).toFixed(1);
+    $("aRec").textContent = round1(avg("recovery")).toFixed(1);
+    $("aDrift").textContent = `${Math.round(driftRate*100)}%`;
+
+    const streaks = computeStreaks(all, endISO);
     $("aStreak").textContent = String(streaks.current);
     $("aBest").textContent = String(streaks.best);
 
-    drawChart(filtered, days);
     const tops = computeTopCounts(filtered);
     $("topBehaviors").innerHTML = tops.behaviors.length
       ? tops.behaviors.map(x=>`<div class="flex justify-between gap-2"><span>${escapeHtml(x.name)}</span><span class="mono text-white font-semibold">${x.count}</span></div>`).join("")
-      : `<div class="text-blue-200/70">No data.</div>`;
+      : `<div class="text-blue-200/70">No data in this period.</div>`;
 
     $("topPenalties").innerHTML = tops.penalties.length
       ? tops.penalties.map(x=>`<div class="flex justify-between gap-2"><span>${escapeHtml(x.name)}</span><span class="mono text-white font-semibold">${x.count}</span></div>`).join("")
-      : `<div class="text-blue-200/70">No data.</div>`;
+      : `<div class="text-blue-200/70">No data in this period.</div>`;
+
+    drawChart(filtered, days, endISO);
   }
 
-  function computeStreaks(filtered, endDate){
-    const byDate = new Map(filtered.map(e=>[e.date, e]));
-    const end = new Date(endDate);
-    let current = 0;
-    for (let i=0;i<3650;i++){
-      const d = new Date(end);
-      d.setDate(d.getDate() - i);
-      const key = isoDate(d);
-      const e = byDate.get(key);
-      if (!e) break;
-      const ok = e.status !== "DRIFT" && e.score >= 65;
-      if (!ok) break;
-      current++;
+  function computeStreaks(all, endISO){
+    if (!all.length) return { current:0, best:0 };
+    const set = new Set(all.map(x=>x.date));
+    const sorted = all.slice().sort((a,b)=>a.date.localeCompare(b.date));
+    let best = 0;
+    let cur = 0;
+
+    // Best streak: scan increasing dates and count consecutive saved days.
+    for (let i=0;i<sorted.length;i++){
+      const d = parseISODateToLocal(sorted[i].date);
+      const prev = i>0 ? parseISODateToLocal(sorted[i-1].date) : null;
+      if (!prev){
+        cur = 1;
+      } else {
+        const diff = (d.getTime() - prev.getTime()) / (1000*60*60*24);
+        if (diff === 1) cur += 1;
+        else cur = 1;
+      }
+      if (cur > best) best = cur;
     }
-    const seq = filtered.slice().sort((a,b)=>a.date.localeCompare(b.date));
-    let best = 0, run = 0;
-    for (const e of seq){
-      const ok = e.status !== "DRIFT" && e.score >= 65;
-      if (ok) { run++; best = Math.max(best, run); }
-      else run = 0;
+
+    // Current streak: count backwards from endISO
+    let c = 0;
+    let cursor = parseISODateToLocal(endISO);
+    while (true){
+      const key = isoDate(cursor);
+      if (!set.has(key)) break;
+      c += 1;
+      cursor.setDate(cursor.getDate() - 1);
     }
-    return { current, best };
+
+    return { current:c, best };
   }
 
   function computeTopCounts(filtered){
     const behaviorCounts = new Map();
     const penaltyCounts = new Map();
+
+    const perfCatalog = new Map(state.catalogs.perf.map(x=>[x.id, x.name]));
+    const penCatalog = new Map(state.catalogs.pen.map(x=>[x.id, x.name]));
+
     filtered.forEach(e=>{
-      Object.entries(e.toggles || {}).forEach(([id,val])=>{
-        if (!val) return;
-        const item = state.catalogs.perf.find(x=>x.id===id);
-        const name = item ? item.name : id;
-        behaviorCounts.set(name, (behaviorCounts.get(name)||0)+1);
+      const t = e.toggles || {};
+      Object.keys(t).forEach(id=>{
+        if (t[id]) behaviorCounts.set(id, (behaviorCounts.get(id)||0)+1);
       });
-      if (e.alcohol && e.alcohol !== "None"){
-        const k = "Alcohol: " + e.alcohol;
-        penaltyCounts.set(k, (penaltyCounts.get(k)||0)+1);
-      }
-      if (e.stress && e.stress !== "None"){
-        const k = "Stress: " + e.stress;
-        penaltyCounts.set(k, (penaltyCounts.get(k)||0)+1);
-      }
-      Object.entries(e.penalties || {}).forEach(([id,val])=>{
-        if (!val) return;
-        const item = state.catalogs.pen.find(x=>x.id===id);
-        const name = item ? item.name : id;
-        penaltyCounts.set(name, (penaltyCounts.get(name)||0)+1);
+      const p = e.penalties || {};
+      Object.keys(p).forEach(id=>{
+        if (p[id]) penaltyCounts.set(id, (penaltyCounts.get(id)||0)+1);
       });
-      const sh = Number(e.sliderValues?.sleepHours ?? 0);
-      if (sh < 4) penaltyCounts.set("Sleep < 4hrs", (penaltyCounts.get("Sleep < 4hrs")||0)+1);
     });
-    const topN = (m, n)=> [...m.entries()].sort((a,b)=>b[1]-a[1]).slice(0,n).map(([name,count])=>({name,count}));
-    return { behaviors: topN(behaviorCounts, 8), penalties: topN(penaltyCounts, 8) };
+
+    const behaviors = [...behaviorCounts.entries()]
+      .map(([id,count])=>({ id, name: perfCatalog.get(id) || id, count }))
+      .sort((a,b)=>b.count - a.count)
+      .slice(0,8);
+
+    const penalties = [...penaltyCounts.entries()]
+      .map(([id,count])=>({ id, name: penCatalog.get(id) || id, count }))
+      .sort((a,b)=>b.count - a.count)
+      .slice(0,8);
+
+    return { behaviors, penalties };
   }
 
-  function drawChart(filtered, days){
+  function drawChart(filtered, days, endISO){
     const canvas = $("chart");
     const ctx = canvas.getContext("2d");
     const W = canvas.width;
     const H = canvas.height;
+
     ctx.clearRect(0,0,W,H);
 
+    // background grid
+    ctx.strokeStyle = "rgba(20,52,87,0.7)";
     ctx.lineWidth = 1;
-    ctx.strokeStyle = "#143457";
-    ctx.strokeRect(40, 15, W-55, H-45);
-
-    ctx.strokeStyle = "rgba(20,52,87,0.65)";
-    for (let i=0;i<=5;i++){
-      const y = 15 + i*(H-45)/5;
+    for (let i=0;i<=4;i++){
+      const y = 20 + i * ((H-40)/4);
       ctx.beginPath();
-      ctx.moveTo(40,y);
-      ctx.lineTo(W-15,y);
+      ctx.moveTo(40, y);
+      ctx.lineTo(W-15, y);
       ctx.stroke();
-      const val = Math.round(100 - i*20);
-      ctx.fillStyle = "rgba(191,219,254,0.75)";
-      ctx.font = "12px system-ui, -apple-system, Segoe UI, Roboto";
-      ctx.fillText(String(val), 8, y+4);
     }
 
-    const ptsPerf = seriesPoints(filtered, "score", days);
-    const ptsRec = seriesPoints(filtered, "recovery", days);
-
-    drawLine(ctx, ptsPerf, "#38bdf8");
-    drawLine(ctx, ptsRec, "#f97316");
-
-    ctx.fillStyle = "rgba(191,219,254,0.85)";
-    ctx.fillText("Performance", 48, H-14);
-    ctx.fillText("Recovery", 148, H-14);
-
-    ctx.fillStyle = "#38bdf8";
-    ctx.fillRect(40, H-22, 6, 6);
-    ctx.fillStyle = "#f97316";
-    ctx.fillRect(140, H-22, 6, 6);
-  }
-
-  function seriesPoints(filtered, key, days){
-    const end = new Date(state.date);
-    const start = new Date(end);
-    start.setDate(start.getDate() - (days - 1));
-    const byDate = new Map(filtered.map(e=>[e.date, e]));
-    const pts = [];
-    for (let i=0;i<days;i++){
-      const d = new Date(start);
-      d.setDate(d.getDate() + i);
-      const iso = isoDate(d);
-      const e = byDate.get(iso);
-      const v = e ? clamp(Number(e[key]||0),0,100) : null;
-      pts.push({ i, v });
-    }
-    return pts;
-  }
-
-  function drawLine(ctx, pts, stroke){
-    const canvas = ctx.canvas;
-    const W = canvas.width;
-    const H = canvas.height;
-    const x0 = 40, y0 = 15, w = W-55, h = H-45;
-    const maxX = Math.max(pts.length-1, 1);
-
-    ctx.strokeStyle = stroke;
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-
-    let started = false;
-    pts.forEach(p=>{
-      if (p.v === null) return;
-      const x = x0 + (p.i / maxX) * w;
-      const y = y0 + (1 - p.v/100) * h;
-      if (!started){ ctx.moveTo(x,y); started = true; }
-      else ctx.lineTo(x,y);
+    // y labels
+    ctx.fillStyle = "rgba(191,219,254,0.75)";
+    ctx.font = "12px system-ui, -apple-system, Segoe UI, Roboto, sans-serif";
+    [100,75,50,25,0].forEach((val, i)=>{
+      const y = 20 + i * ((H-40)/4);
+      ctx.fillText(String(val), 10, y+4);
     });
-    ctx.stroke();
+
+    const pointsForKey = (key)=>{
+      const pts = [];
+      for (let i=days-1;i>=0;i--){
+        const d = parseISODateToLocal(endISO);
+        d.setDate(d.getDate() - i);
+        const dISO = isoDate(d);
+        const e = filtered.find(x=>x.date===dISO);
+        const v = e ? Number(e[key]||0) : null;
+        pts.push({ date:dISO, value:v });
+      }
+      return pts;
+    };
+
+    const perfPts = pointsForKey("score");
+    const recPts = pointsForKey("recovery");
+
+    const x0 = 40, x1 = W-15;
+    const y0 = H-20, y1 = 20;
+
+    const xStep = days > 1 ? (x1-x0) / (days-1) : 0;
+    const mapY = (v)=> y0 - (clamp(v,0,100)/100) * (y0-y1);
+
+    // draw lines
+    function drawSeries(pts, stroke){
+      ctx.strokeStyle = stroke;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      let started = false;
+      pts.forEach((p, idx)=>{
+        if (p.value === null) return;
+        const x = x0 + idx * xStep;
+        const y = mapY(p.value);
+        if (!started){
+          ctx.moveTo(x,y);
+          started = true;
+        } else {
+          ctx.lineTo(x,y);
+        }
+      });
+      ctx.stroke();
+
+      // markers
+      ctx.fillStyle = stroke;
+      pts.forEach((p, idx)=>{
+        if (p.value === null) return;
+        const x = x0 + idx * xStep;
+        const y = mapY(p.value);
+        ctx.beginPath();
+        ctx.arc(x,y,3,0,Math.PI*2);
+        ctx.fill();
+      });
+    }
+
+    drawSeries(perfPts, "rgba(56,189,248,0.95)");
+    drawSeries(recPts, "rgba(34,197,94,0.95)");
+
+    // x labels: show start and end
+    ctx.fillStyle = "rgba(191,219,254,0.75)";
+    ctx.fillText(perfPts[0]?.date || "", x0, H-5);
+    const endLabel = perfPts[perfPts.length-1]?.date || "";
+    const tw = ctx.measureText(endLabel).width;
+    ctx.fillText(endLabel, x1 - tw, H-5);
   }
 
   // ---------- Coach ----------
+  let coachPlan = null;
+
   function updateCoach(){
-    const arr = getHistoryArray();
-    const end = new Date(state.date);
-    const start = new Date(end);
-    start.setDate(start.getDate() - 27);
-
-    const filtered = arr.filter(e=>{
-      const d = new Date(e.date + "T00:00:00");
-      return d >= start && d <= end;
-    });
-
-    const avg = (xs)=> xs.length ? xs.reduce((a,x)=>a+x,0)/xs.length : 0;
-    const aPerf = avg(filtered.map(e=>e.score));
-    const aRec = avg(filtered.map(e=>e.recovery));
-    const driftRate = filtered.length ? (filtered.filter(e=>e.status==="DRIFT").length / filtered.length) : 0;
-
-    const recs = [];
-    if (!filtered.length){
-      recs.push("No saved entries in the last 28 days. Save at least 7 days to generate meaningful recommendations.");
-    } else {
-      if (driftRate >= 0.30){
-        recs.push("High drift rate detected. Consider increasing penalty severity for frequent triggers or increasing recovery weights for Sleep and Stretching.");
-      }
-      if (aPerf >= 75 && aRec < 55){
-        recs.push("High training with low recovery detected. Consider increasing Recovery weights for Sleep and Stretching.");
-      }
-      if (aRec < 50){
-        recs.push("Recovery is consistently low. Consider raising Recovery weights for Steps, Sunlight, and Supplement Stack.");
-      }
-      if (aPerf < 60){
-        recs.push("Performance is consistently low. Consider raising Performance weights for the hardest high-value behaviors and removing low-value indicators from the dashboard.");
-      }
-      recs.push("Apply changes only after reviewing whether the scoring still reflects what matters most right now.");
+    const all = getHistoryArray();
+    if (!all.length){
+      $("coachText").innerHTML = `<div class="text-blue-200/70">No saved entries yet. Save at least 7 days to get meaningful recommendations.</div>`;
+      coachPlan = null;
+      return;
     }
 
-    $("coachText").innerHTML = recs.map(t=>`<div class="card rounded-xl p-3">${escapeHtml(t)}</div>`).join("");
+    const endISO = state.date || isoDate(new Date());
+    const periodDays = 30;
+    const filtered = all.filter(e=>withinDays(e.date, endISO, periodDays));
+    if (filtered.length < 7){
+      $("coachText").innerHTML = `<div class="text-blue-200/70">Not enough data in the last ${periodDays} days. Save at least 7 days to get recommendations.</div>`;
+      coachPlan = null;
+      return;
+    }
+
+    // Heuristic: detect consistently performed behaviors and propose raising their weights slightly.
+    // Also detect frequently triggered penalties and propose stronger multipliers (lower number) slightly.
+    const togglesCount = new Map();
+    const penaltiesCount = new Map();
+
+    filtered.forEach(e=>{
+      const t = e.toggles || {};
+      Object.keys(t).forEach(id=>{
+        if (t[id]) togglesCount.set(id, (togglesCount.get(id)||0)+1);
+      });
+      const p = e.penalties || {};
+      Object.keys(p).forEach(id=>{
+        if (p[id]) penaltiesCount.set(id, (penaltiesCount.get(id)||0)+1);
+      });
+    });
+
+    const freqThreshold = Math.ceil(filtered.length * 0.65);
+    const rareThreshold = Math.floor(filtered.length * 0.20);
+
+    const raise = [];
+    const lower = [];
+
+    state.catalogs.perf.forEach(item=>{
+      const c = togglesCount.get(item.id)||0;
+      if (c >= freqThreshold){
+        raise.push({ kind:"perf", id:item.id, name:item.name, delta: +2, basis:`Completed ${c}/${filtered.length} days` });
+      } else if (c <= rareThreshold && item.onDashboard){
+        lower.push({ kind:"perf", id:item.id, name:item.name, delta: -2, basis:`Completed ${c}/${filtered.length} days` });
+      }
+    });
+
+    state.catalogs.sliders.forEach(item=>{
+      const vals = filtered.map(e=>Number((e.sliderValues||{})[item.id] ?? null)).filter(v=>Number.isFinite(v));
+      if (!vals.length) return;
+      const avgVal = vals.reduce((a,v)=>a+v,0)/vals.length;
+      const comp = getCompletion(item, avgVal);
+      if (comp >= 0.7){
+        raise.push({ kind:"sliders", id:item.id, name:item.name, delta:+2, basis:`Average completion ${(comp*100).toFixed(0)}%` });
+      } else if (comp <= 0.2 && item.onDashboard){
+        lower.push({ kind:"sliders", id:item.id, name:item.name, delta:-2, basis:`Average completion ${(comp*100).toFixed(0)}%` });
+      }
+    });
+
+    const penaltyTighten = [];
+    state.catalogs.pen.forEach(item=>{
+      const c = penaltiesCount.get(item.id)||0;
+      if (c >= freqThreshold){
+        // tighten penalty by lowering multiplier a bit
+        penaltyTighten.push({ id:item.id, name:item.name, delta:-0.02, basis:`Triggered ${c}/${filtered.length} days` });
+      }
+    });
+
+    // Build plan, cap changes
+    const topRaise = raise.sort((a,b)=>b.delta - a.delta).slice(0,5);
+    const topLower = lower.sort((a,b)=>a.delta - b.delta).slice(0,3);
+    const topPen = penaltyTighten.slice(0,4);
+
+    coachPlan = {
+      raise: topRaise,
+      lower: topLower,
+      penalties: topPen
+    };
+
+    const parts = [];
+    parts.push(`<div class="text-blue-200/80"><span class="text-cyan-200 font-semibold">Period:</span> last ${periodDays} days ending ${endISO}. Entries used: <span class="mono text-white font-semibold">${filtered.length}</span>.</div>`);
+
+    if (!topRaise.length && !topLower.length && !topPen.length){
+      parts.push(`<div class="text-blue-200/70">No strong signals detected. Keep collecting data.</div>`);
+      $("coachText").innerHTML = parts.join("");
+      return;
+    }
+
+    if (topRaise.length){
+      parts.push(`<div class="text-cyan-200 font-semibold">Increase weights (reward consistency)</div>`);
+      parts.push(`<ul class="list-disc pl-6 space-y-1">` +
+        topRaise.map(x=>`<li>${escapeHtml(x.name)}: <span class="mono text-white font-semibold">+${x.delta}</span> (${escapeHtml(x.basis)})</li>`).join("") +
+      `</ul>`);
+    }
+
+    if (topLower.length){
+      parts.push(`<div class="text-cyan-200 font-semibold mt-2">Decrease weights (reduce noise)</div>`);
+      parts.push(`<ul class="list-disc pl-6 space-y-1">` +
+        topLower.map(x=>`<li>${escapeHtml(x.name)}: <span class="mono text-white font-semibold">${x.delta}</span> (${escapeHtml(x.basis)})</li>`).join("") +
+      `</ul>`);
+    }
+
+    if (topPen.length){
+      parts.push(`<div class="text-cyan-200 font-semibold mt-2">Tighten penalties (reduce tolerance)</div>`);
+      parts.push(`<ul class="list-disc pl-6 space-y-1">` +
+        topPen.map(x=>`<li>${escapeHtml(x.name)}: multiplier <span class="mono text-white font-semibold">${x.delta}</span> (${escapeHtml(x.basis)})</li>`).join("") +
+      `</ul>`);
+    }
+
+    parts.push(`<div class="text-blue-200/70 text-xs mt-2">Apply only if Personalization Mode is On.</div>`);
+    $("coachText").innerHTML = parts.join("");
   }
 
   function applyCoachSuggestions(){
-    // unchanged from your prior version; keep for later patch sets
+    if (!coachPlan) return;
+
+    snapshotForUndo();
+
+    coachPlan.raise.forEach(x=>{
+      if (x.kind === "perf"){
+        const item = state.catalogs.perf.find(i=>i.id===x.id);
+        if (item) item.perfWeight = Number(item.perfWeight||0) + x.delta;
+      } else if (x.kind === "sliders"){
+        const item = state.catalogs.sliders.find(i=>i.id===x.id);
+        if (item) item.perfWeight = Number(item.perfWeight||0) + x.delta;
+      }
+    });
+
+    coachPlan.lower.forEach(x=>{
+      if (x.kind === "perf"){
+        const item = state.catalogs.perf.find(i=>i.id===x.id);
+        if (item) item.perfWeight = Math.max(0, Number(item.perfWeight||0) + x.delta);
+      } else if (x.kind === "sliders"){
+        const item = state.catalogs.sliders.find(i=>i.id===x.id);
+        if (item) item.perfWeight = Math.max(0, Number(item.perfWeight||0) + x.delta);
+      }
+    });
+
+    coachPlan.penalties.forEach(x=>{
+      const item = state.catalogs.pen.find(i=>i.id===x.id);
+      if (item){
+        const next = clamp(Number(item.multiplier||1) + x.delta, 0.50, 1.00);
+        item.multiplier = Math.round(next*100)/100;
+      }
+    });
   }
 
   $("btnApplyCoach").addEventListener("click", ()=>{
     if (!state.personalizationMode){
       alert("Enable Personalization Mode before applying suggested changes.");
+      return;
+    }
+    if (!coachPlan){
+      alert("No coach plan available.");
       return;
     }
     applyCoachSuggestions();
@@ -2248,7 +2715,6 @@
   syncModeUI();
   syncSegments();
 
-  // set initial tab + builders subtab
   if (!TAB_ORDER.includes(state.tab)) state.tab = "dashboard";
   state.tabIndex = Math.max(0, TAB_ORDER.indexOf(state.tab));
   setTab(state.tab, { bypassGate:true });
