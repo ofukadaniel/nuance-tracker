@@ -1391,7 +1391,6 @@
 
   // ---------- Dashboard rendering ----------
   function setInputsEnabled(enabled){
-
     const dash = $("tab-dashboard");
     const controls = dash.querySelectorAll("input,button.segAlcohol,button.segStress,.toggleBtn,.sliderEl");
     controls.forEach(el=>{
@@ -1491,7 +1490,6 @@
   }
 
   function renderPerformanceToggles(){
-
     const wrap = $("performanceToggles");
     wrap.innerHTML = "";
     const items = state.catalogs.perf.filter(x=>x.onDashboard && x.type==="toggle").slice().sort(byOrder);
@@ -1530,8 +1528,7 @@
     const wrap = $("penaltyToggles");
     wrap.innerHTML = "";
     const items = state.catalogs.pen.filter(x=>x.onDashboard && x.type==="penaltyToggle").slice().sort(byOrder);
-   items.forEach(item=>{
-  
+    items.forEach(item=>{
       const on = !!state.penalties[item.id];
       const selected = state.selected.pen.has(item.id);
 
@@ -2266,5 +2263,3 @@
 </script>
 </body>
 </html>
-
-
