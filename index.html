@@ -948,19 +948,103 @@
     ];
   }
 
-  function makePlaceholders(prefix, count, kind, startOrder){
-    const arr = [];
-    for (let i=1;i<=count;i++){
-      if (kind === "slider"){
-        arr.push({ id:`${prefix}_ph_${i}`, name:`Placeholder Slider ${i}`, type:"slider", completionType:"linear", min:0, max:10, step:1, perfWeight:10, recoveryWeight:5, impact:"both", onDashboard:false, order:startOrder+i });
-      } else if (kind === "perf"){
-        arr.push({ id:`${prefix}_ph_${i}`, name:`Placeholder Performance ${i}`, type:"toggle", perfWeight:10, recoveryWeight:5, impact:"both", onDashboard:false, order:startOrder+i });
-      } else if (kind === "pen"){
-        arr.push({ id:`${prefix}_ph_${i}`, name:`Placeholder Penalty ${i}`, type:"penaltyToggle", multiplier:0.90, impact:"both", onDashboard:false, order:startOrder+i });
-      }
-    }
-    return arr;
+  // ---------- PLACEHOLDERS (MODIFIED) ----------
+  function performancePlaceholders(startOrder){
+    const names = [
+      "Journaling Session",
+      "Meditation Practice",
+      "Breathwork Session",
+      "Red Light Therapy",
+      "Cold Plunge Exposure",
+      "Sauna Session",
+      "Grounding",
+      "Nature Walk",
+      "Yoga Session",
+      "Mobility Flow",
+      "Skill Practice",
+      "Creative Work",
+      "Public Speaking Practice",
+      "Reading for Growth",
+      "Strategic Planning"
+    ];
+
+    return names.map((name, i)=>({
+      id: "pf_ext_" + i,
+      name,
+      type:"toggle",
+      perfWeight:10,
+      recoveryWeight:5,
+      impact:"both",
+      onDashboard:false,
+      order:startOrder + i
+    }));
   }
+
+  function penaltyPlaceholders(startOrder){
+    const names = [
+      "Doomscrolling",
+      "Late Night Screen Use",
+      "Missed Workout Commitment",
+      "Emotional Eating",
+      "High Sugar Intake",
+      "Ultra High Sodium Meal",
+      "Skipped Hydration",
+      "Conflict Escalation",
+      "Sleep Schedule Drift",
+      "Social Isolation",
+      "Excessive Caffeine",
+      "Missed Morning Routine",
+      "Poor Posture All Day",
+      "Multitasking Overload",
+      "No Outdoor Exposure"
+    ];
+
+    return names.map((name, i)=>({
+      id: "pn_ext_" + i,
+      name,
+      type:"penaltyToggle",
+      multiplier:0.90,
+      impact:"both",
+      onDashboard:false,
+      order:startOrder + i
+    }));
+  }
+
+  function sliderPlaceholders(startOrder){
+    const names = [
+      "Meditation Minutes",
+      "Sauna Minutes",
+      "Cold Exposure Minutes",
+      "Yoga Minutes",
+      "Hiking Miles",
+      "Reading Minutes",
+      "Journaling Minutes",
+      "Creative Work Hours",
+      "Focus Blocks Completed",
+      "Water Intake (Liters)",
+      "Standing Desk Hours",
+      "Sunlight Exposure Minutes",
+      "Mobility Minutes",
+      "Social Interaction Minutes",
+      "Breathwork Rounds"
+    ];
+
+    return names.map((name, i)=>({
+      id: "sl_ext_" + i,
+      name,
+      type:"slider",
+      completionType:"linear",
+      min:0,
+      max:10,
+      step:1,
+      perfWeight:10,
+      recoveryWeight:5,
+      impact:"both",
+      onDashboard:false,
+      order:startOrder + i
+    }));
+  }
+  // ---------- END PLACEHOLDERS (MODIFIED) ----------
 
   const defaultState = {
     tab:"dashboard",
@@ -978,10 +1062,11 @@
     ownerOverride:false,
     ownerPinHash:"",
 
+    // MODIFIED: wire named placeholders instead of generic makePlaceholders()
     catalogs: {
-      sliders: [...baseSliders(), ...makePlaceholders("sl", 15, "slider", 100)],
-      perf:    [...basePerfToggles(), ...makePlaceholders("pf", 15, "perf", 100)],
-      pen:     [...basePenalties(), ...makePlaceholders("pn", 15, "pen", 100)]
+      sliders: [...baseSliders(), ...sliderPlaceholders(100)],
+      perf:    [...basePerfToggles(), ...performancePlaceholders(100)],
+      pen:     [...basePenalties(), ...penaltyPlaceholders(100)]
     },
 
     sliderValues: {},
