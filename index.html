@@ -183,6 +183,15 @@
         </div>
       </div>
 
+      <!-- Local device time (NEW) -->
+      <div class="mt-2 flex items-center justify-between">
+        <div class="text-blue-200/70 text-xs">
+          Local Time: <span id="localClock" class="mono text-white font-semibold"></span>
+          <span class="mx-2 opacity-60">|</span>
+          TZ: <span id="tzLabel" class="mono text-white font-semibold"></span>
+        </div>
+      </div>
+
       <div class="mt-3 grid grid-cols-1 md:grid-cols-3 gap-3">
         <div class="card rounded-xl p-3">
           <div class="flex items-center justify-between gap-3">
@@ -711,6 +720,35 @@
 
   const $ = (id) => document.getElementById(id);
 
+  // ---------- Local device time (NEW) ----------
+  function formatLocalClock(d = new Date()){
+    return d.toLocaleString(undefined, {
+      weekday:"short",
+      year:"numeric",
+      month:"short",
+      day:"2-digit",
+      hour:"2-digit",
+      minute:"2-digit",
+      second:"2-digit",
+      hour12:false
+    });
+  }
+
+  function startLocalClock(){
+    const clockEl = $("localClock");
+    const tzEl = $("tzLabel");
+    if (!clockEl) return;
+
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "Local";
+    if (tzEl) tzEl.textContent = tz;
+
+    const tick = ()=>{
+      clockEl.textContent = formatLocalClock(new Date());
+    };
+    tick();
+    setInterval(tick, 1000);
+  }
+
   // ---------- Storage key ----------
   const LS_KEY = "nuance_tracker_v2_full";
   const THEME_KEY = "nuance_theme_v1";
@@ -1172,6 +1210,9 @@
     applyTheme(next);
   });
 
+  // Local clock boot (NEW)
+  startLocalClock();
+
   // Date picker range
   const datePicker = $("datePicker");
   const today = new Date();
@@ -1352,11 +1393,22 @@
     renderDashboard();
   }
 
-  // Save Day
+  // Save Day (UPDATED: saves local timestamp metadata)
   $("btnSave").addEventListener("click", ()=>{
     const snap = computeScores();
+    const now = new Date();
+
     state.history[state.date] = {
       date: state.date,
+
+      savedAtLocal: now.toLocaleString(undefined, {
+        year:"numeric", month:"2-digit", day:"2-digit",
+        hour:"2-digit", minute:"2-digit", second:"2-digit",
+        hour12:false
+      }),
+      tz: Intl.DateTimeFormat().resolvedOptions().timeZone || null,
+      offsetMinutes: -now.getTimezoneOffset(),
+
       mode: state.mode,
       alcohol: state.alcohol,
       stress: state.stress,
@@ -1369,6 +1421,7 @@
       recovery: snap.recovery,
       status: snap.status
     };
+
     saveState();
     renderHistoryTable();
     if (state.tab === "analytics") updateAnalytics(currentPeriodDays);
@@ -2728,7 +2781,7 @@
     filtered.forEach(e=>{
       const t = e.toggles || {};
       Object.keys(t).forEach(id=>{
-        if (t[id]) togglesCount.set(id, (togglesCount.get(id)||0)+1);
+        if (t[id]) togglesCount.set(id, (toglesCount.get(id)||0)+1);
       });
       const p = e.penalties || {};
       Object.keys(p).forEach(id=>{
