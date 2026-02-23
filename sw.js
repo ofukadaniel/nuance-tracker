@@ -1,23 +1,26 @@
 // /sw.js
-const CACHE = "nuance-cache-v2";
+const CACHE_NAME = "nuance-cache-v2";
 const APP_SHELL = [
-  "/",
+  "/",                  // optional, but fine
   "/index.html",
   "/manifest.webmanifest",
-  "/sw.js",
   "/icon-192.png",
   "/icon-512.png"
 ];
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(caches.open(CACHE_VERSION).then((cache) => cache.addAll(APP_SHELL)));
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL))
+  );
   self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(keys.map((k) => (k !== CACHE_VERSION ? caches.delete(k) : null)))
+      Promise.all(
+        keys.map((k) => (k !== CACHE_NAME ? caches.delete(k) : Promise.resolve()))
+      )
     )
   );
   self.clients.claim();
@@ -36,7 +39,7 @@ self.addEventListener("fetch", (event) => {
       fetch(req)
         .then((res) => {
           const copy = res.clone();
-          caches.open(CACHE_VERSION).then((c) => c.put("/index.html", copy));
+          caches.open(CACHE_NAME).then((c) => c.put("/index.html", copy));
           return res;
         })
         .catch(() => caches.match("/index.html"))
@@ -44,7 +47,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // everything else: cache-first, then network, then (optional) index.html for same-origin
+  // everything else: cache-first, then network
   event.respondWith(
     caches.match(req).then((cached) => {
       if (cached) return cached;
@@ -53,7 +56,7 @@ self.addEventListener("fetch", (event) => {
         .then((res) => {
           if (req.method === "GET" && res.ok) {
             const copy = res.clone();
-            caches.open(CACHE_VERSION).then((c) => c.put(req, copy));
+            caches.open(CACHE_NAME).then((c) => c.put(req, copy));
           }
           return res;
         })
@@ -61,6 +64,3 @@ self.addEventListener("fetch", (event) => {
     })
   );
 });
-
-
-
