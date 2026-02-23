@@ -86,7 +86,11 @@
       border-top:1px solid rgba(201,214,234,0.95);
     }
 
-    .deck-viewport{ overflow-x:hidden; overflow-y:visible; }
+    .deck-viewport{
+  overflow-x:hidden;
+  overflow-y:auto;
+  padding-bottom: 90px; /* space for bottom nav */
+}
     .deck{
       display:flex;
       width:100%;
@@ -158,7 +162,7 @@
 </head>
 
 <body class="min-h-full">
-  <div class="mx-auto max-w-6xl px-3 pb-28">
+  <div class="mx-auto max-w-6xl px-3 pb-16">
     <header class="pt-4 pb-3">
       <div class="flex items-center justify-between gap-3">
         <div>
@@ -3131,3 +3135,4 @@
   </script>
 </body>
 </html>
+
