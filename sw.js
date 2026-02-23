@@ -1,5 +1,5 @@
 // /sw.js
-const CACHE_VERSION = "nuancedtracker-v1";
+const CACHE = "nuance-cache-v2";
 const APP_SHELL = [
   "/",
   "/index.html",
@@ -61,5 +61,6 @@ self.addEventListener("fetch", (event) => {
     })
   );
 });
+
 
 
